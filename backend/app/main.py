@@ -8,6 +8,8 @@ from typing import Optional
 from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, EmailStr, Field
+from fastapi import FastAPI, Depends, HTTPException
+from security import get_current_user
 
 APP_NAME = "SwarUtsav API"
 API_PREFIX = os.getenv("API_V1_PREFIX", "/api/v1").rstrip("/")
@@ -16,6 +18,7 @@ JWT_SECRET = os.getenv("JWT_SECRET", "development-only-change-this-secret")
 TOKEN_TTL_SECONDS = int(os.getenv("TOKEN_TTL_SECONDS", "86400"))
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
 DATABASE_PATH.parent.mkdir(parents=True, exist_ok=True)
+app = FastAPI()
 
 @contextmanager
 def db():
@@ -229,3 +232,33 @@ def get_report(interview_id:int,user=Depends(current_user)):
 def admin_overview(user=Depends(require_admin)):
     with db() as conn:
         return {"users":conn.execute("SELECT COUNT(*) FROM users").fetchone()[0],"interviews":conn.execute("SELECT COUNT(*) FROM interviews").fetchone()[0],"completed_interviews":conn.execute("SELECT COUNT(*) FROM interviews WHERE status='completed'").fetchone()[0],"questions":conn.execute("SELECT COUNT(*) FROM questions WHERE active=1").fetchone()[0]}
+
+@app.get("/candidate/dashboard")
+def candidate_dashboard(
+    user=Depends(get_current_user)
+):
+    if user["role"] != "candidate":
+        raise HTTPException(
+            status_code=403,
+            detail="Candidate access only"
+        )
+
+    return {
+        "message": "Welcome to Candidate Dashboard",
+        "user_id": user["sub"]
+    }
+
+
+@app.get("/admin/dashboard")
+def admin_dashboard(
+    user=Depends(get_current_user)
+):
+    if user["role"] != "admin":
+        raise HTTPException(
+            status_code=403,
+            detail="Admin access only"
+        )
+
+    return {
+        "message": "Welcome to Admin Dashboard"
+    }

@@ -9,4 +9,6 @@ build/
 .pytest_cache/
 .coverage
 *.log
-
+secrets/
+*.pem
+*.key
