@@ -13,8 +13,17 @@ from pydantic import BaseModel, EmailStr, Field
 APP_NAME = "SwarUtsav API"
 API_PREFIX = os.getenv("API_V1_PREFIX", "/api/v1").rstrip("/")
 DATABASE_PATH = Path(os.getenv("DATABASE_PATH", "./data/swarutsav.db"))
-JWT_SECRET = os.getenv("JWT_SECRET", "development-only-change-this-secret")
-TOKEN_TTL_SECONDS = int(os.getenv("TOKEN_TTL_SECONDS", "86400"))
+JWT_SECRET = os.getenv("JWT_SECRET", "")
+APP_ENV = os.getenv("APP_ENV", "development").lower()
+if APP_ENV != "development" and len(JWT_SECRET) < 32:
+    raise RuntimeError("JWT_SECRET must be at least 32 characters outside development")
+if not JWT_SECRET:
+    if APP_ENV != "development":
+        raise RuntimeError("JWT_SECRET is required")
+    JWT_SECRET = secrets.token_urlsafe(48)
+TOKEN_TTL_SECONDS = int(os.getenv("TOKEN_TTL_SECONDS", "3600"))
+if not 60 <= TOKEN_TTL_SECONDS <= 86400:
+    raise RuntimeError("TOKEN_TTL_SECONDS must be between 60 and 86400")
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
 DATABASE_PATH.parent.mkdir(parents=True, exist_ok=True)
 app = FastAPI()
@@ -38,6 +47,7 @@ def init_db():
         CREATE TABLE IF NOT EXISTS questions(id INTEGER PRIMARY KEY AUTOINCREMENT,category TEXT NOT NULL,target_role TEXT NOT NULL,difficulty TEXT NOT NULL,prompt TEXT NOT NULL,keywords TEXT NOT NULL DEFAULT '[]',active INTEGER NOT NULL DEFAULT 1);
         CREATE TABLE IF NOT EXISTS responses(id INTEGER PRIMARY KEY AUTOINCREMENT,interview_id INTEGER NOT NULL REFERENCES interviews(id) ON DELETE CASCADE,question_id INTEGER,question_text TEXT NOT NULL,answer_text TEXT NOT NULL,relevance REAL NOT NULL,completeness REAL NOT NULL,clarity REAL NOT NULL,feedback TEXT NOT NULL,created_at TEXT NOT NULL);
         CREATE TABLE IF NOT EXISTS reports(id INTEGER PRIMARY KEY AUTOINCREMENT,interview_id INTEGER NOT NULL UNIQUE REFERENCES interviews(id) ON DELETE CASCADE,overall_score REAL NOT NULL,summary TEXT NOT NULL,created_at TEXT NOT NULL);
+        CREATE TABLE IF NOT EXISTS interview_questions(interview_id INTEGER NOT NULL REFERENCES interviews(id) ON DELETE CASCADE,position INTEGER NOT NULL,question_id INTEGER,question_text TEXT NOT NULL,PRIMARY KEY(interview_id,position));
         """)
         if conn.execute("SELECT COUNT(*) FROM questions").fetchone()[0] == 0:
             seeds=[
@@ -64,7 +74,9 @@ def decode_token(token: str):
         expected=b64url(hmac.new(JWT_SECRET.encode(),f"{header}.{payload}".encode(),hashlib.sha256).digest())
         if not hmac.compare_digest(signature,expected): raise ValueError()
         data=json.loads(base64.urlsafe_b64decode(payload+"="*(-len(payload)%4)))
-        if int(data["exp"]) < int(time.time()): raise ValueError()
+        header_data=json.loads(base64.urlsafe_b64decode(header+"="*(-len(header)%4)))
+        if header_data.get("alg")!="HS256" or header_data.get("typ")!="JWT": raise ValueError()
+        if int(data["exp"]) <= int(time.time()): raise ValueError()
         return data
     except Exception: raise HTTPException(status_code=401,detail="Invalid or expired access token")
 def current_user(authorization: Optional[str]=Header(default=None)):
@@ -161,10 +173,49 @@ def create_interview(payload:InterviewInput,user=Depends(current_user)):
         filters.append("(target_role=? OR target_role='Any')"); args.append(payload.target_role)
         filters.append("difficulty=?"); args.append(payload.difficulty)
         questions=conn.execute("SELECT id,category,prompt FROM questions WHERE "+" AND ".join(filters)+" ORDER BY RANDOM() LIMIT ?",(*args,payload.question_count)).fetchall()
-        if len(questions)<payload.question_count:
-            extra=conn.execute("SELECT id,category,prompt FROM questions WHERE active=1 ORDER BY RANDOM() LIMIT ?",(payload.question_count-len(questions),)).fetchall()
-            seen={q["id"] for q in questions}; questions=list(questions)+[q for q in extra if q["id"] not in seen]
-    return {"id":iid,"title":payload.title,"target_role":payload.target_role,"interview_type":payload.interview_type,"difficulty":payload.difficulty,"question_count":payload.question_count,"status":"in_progress","questions":[dict(q) for q in questions]}
+        selected=[dict(q) for q in questions]
+        used={q["id"] for q in selected}
+        if len(selected)<payload.question_count:
+            additional=conn.execute("SELECT id,category,prompt FROM questions WHERE active=1 ORDER BY RANDOM()").fetchall()
+            for q in additional:
+                if q["id"] not in used:
+                    selected.append(dict(q)); used.add(q["id"])
+                if len(selected)==payload.question_count: break
+        # Fallback prompts are distinct; never return fewer questions than requested.
+        templates=[
+            "Explain a practical example of {role} work and its major trade-offs.",
+            "How would you debug a difficult problem as a {role}?",
+            "What security risks would you evaluate in a {role} project?",
+            "Describe how you would design tests for a {role} solution.",
+            "How would you prioritize reliability and performance for {role}?",
+            "Describe a technical decision you would reconsider and why.",
+            "How would you communicate a complex idea to a nontechnical stakeholder?",
+            "Explain your approach to incident response and root-cause analysis.",
+            "What steps would you take to improve an existing project's quality?",
+            "How would you estimate scope and manage changing requirements?",
+            "Describe how you would receive and apply critical feedback.",
+            "How do you balance learning a new skill with an urgent deadline?",
+            "Explain how you would measure the success of a solution.",
+            "What is one common misconception in your target role?",
+            "Describe a situation where collaboration improves the result.",
+            "What would you do if an important dependency becomes unavailable?",
+            "How would you document a system for a new teammate?",
+            "Describe the trade-offs between a quick fix and a long-term fix.",
+            "How would you verify that a new feature works for real users?",
+            "What would you improve after shipping a first version?"
+        ]
+        for template in templates:
+            if len(selected)>=payload.question_count: break
+            prompt=template.format(role=payload.target_role)
+            if prompt not in {q["prompt"] for q in selected}:
+                selected.append({"id":None,"category":payload.interview_type,"prompt":prompt})
+        if len(selected)!=payload.question_count:
+            raise HTTPException(status_code=422,detail="Could not generate requested question count")
+        conn.executemany(
+            "INSERT INTO interview_questions(interview_id,position,question_id,question_text) VALUES(?,?,?,?)",
+            [(iid,i,q["id"],q["prompt"]) for i,q in enumerate(selected)]
+        )
+    return {"id":iid,"title":payload.title,"target_role":payload.target_role,"interview_type":payload.interview_type,"difficulty":payload.difficulty,"question_count":payload.question_count,"status":"in_progress","questions":selected}
 
 @app.get(f"{API_PREFIX}/interviews",tags=["interviews"])
 def list_interviews(user=Depends(current_user)):
@@ -176,7 +227,9 @@ def get_interview(interview_id:int,user=Depends(current_user)):
         interview=conn.execute("SELECT * FROM interviews WHERE id=? AND user_id=?",(interview_id,user["id"])).fetchone()
         if not interview: raise HTTPException(status_code=404,detail="Interview not found")
         responses=conn.execute("SELECT id,question_id,question_text,answer_text,relevance,completeness,clarity,feedback,created_at FROM responses WHERE interview_id=? ORDER BY id",(interview_id,)).fetchall()
-    return {**dict(interview),"responses":[dict(r) for r in responses]}
+    with db() as conn:
+        assigned=conn.execute("SELECT question_id AS id,question_text AS prompt FROM interview_questions WHERE interview_id=? ORDER BY position",(interview_id,)).fetchall()
+    return {**dict(interview),"questions":[dict(q) for q in assigned],"responses":[dict(r) for r in responses]}
 
 def evaluate_answer(question:str,answer:str):
     """Transparent baseline rubric; replace with an approved external LLM evaluator later."""
@@ -198,15 +251,21 @@ def submit_answer(interview_id:int,payload:AnswerInput,user=Depends(current_user
         interview=conn.execute("SELECT id,status FROM interviews WHERE id=? AND user_id=?",(interview_id,user["id"])).fetchone()
         if not interview: raise HTTPException(status_code=404,detail="Interview not found")
         if interview["status"]!="in_progress": raise HTTPException(status_code=409,detail="Interview is already completed")
+        answered=conn.execute("SELECT COUNT(*) FROM responses WHERE interview_id=?",(interview_id,)).fetchone()[0]
+        assigned=conn.execute("SELECT question_id,question_text FROM interview_questions WHERE interview_id=? AND position=?",(interview_id,answered)).fetchone()
+        if not assigned: raise HTTPException(status_code=409,detail="All assigned questions have been answered")
+        if assigned["question_id"] != payload.question_id or assigned["question_text"] != payload.question_text:
+            raise HTTPException(status_code=422,detail="Answer does not match the next assigned question")
         conn.execute("INSERT INTO responses(interview_id,question_id,question_text,answer_text,relevance,completeness,clarity,feedback,created_at) VALUES(?,?,?,?,?,?,?,?,?)",(interview_id,payload.question_id,payload.question_text,payload.answer_text,scores["relevance"],scores["completeness"],scores["clarity"],scores["feedback"],now_iso()))
     return scores
 
 @app.post(f"{API_PREFIX}/interviews/{{interview_id}}/complete",tags=["interviews"])
 def complete_interview(interview_id:int,user=Depends(current_user)):
     with db() as conn:
-        interview=conn.execute("SELECT id,status FROM interviews WHERE id=? AND user_id=?",(interview_id,user["id"])).fetchone()
+        interview=conn.execute("SELECT id,status,question_count FROM interviews WHERE id=? AND user_id=?",(interview_id,user["id"])).fetchone()
         if not interview: raise HTTPException(status_code=404,detail="Interview not found")
         rows=conn.execute("SELECT relevance,completeness,clarity,feedback FROM responses WHERE interview_id=?",(interview_id,)).fetchall()
+        if len(rows)!=interview["question_count"]: raise HTTPException(status_code=409,detail="Answer all assigned questions before completing")
         if not rows: raise HTTPException(status_code=400,detail="Submit at least one answer before completing the interview")
         overall=round(sum(r["relevance"]*.5+r["completeness"]*.3+r["clarity"]*.2 for r in rows)/len(rows),1)
         summary=" ".join(dict.fromkeys(r["feedback"] for r in rows))
