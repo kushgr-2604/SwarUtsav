@@ -1,4 +1,37 @@
 services:
+  auth-service:
+    build: ./backend/auth_service
+    container_name: swarutsav-auth
+
+    environment:
+      JWT_ALGORITHM: RS256
+      JWT_ISSUER: swarutsav-auth
+      JWT_AUDIENCE: swarutsav-api
+      ACCESS_TOKEN_EXPIRE_MINUTES: 15
+      REFRESH_TOKEN_EXPIRE_DAYS: 7
+
+    secrets:
+      - jwt_private
+      - jwt_public
+
+    ports:
+      - "8001:8000"
+
+  interview-service:
+    build: ./backend/interview_service
+    container_name: swarutsav-interview
+
+    environment:
+      JWT_PUBLIC_KEY_PATH: /run/secrets/jwt_public
+      JWT_ISSUER: swarutsav-auth
+      JWT_AUDIENCE: swarutsav-api
+
+    secrets:
+      - jwt_public
+
+    ports:
+      - "8002:8000"
+
   backend:
     build: { context: ./backend }
     container_name: swarutsav-api
@@ -16,6 +49,7 @@ services:
       timeout: 5s
       retries: 3
     restart: unless-stopped
+
   frontend:
     build:
       context: ./frontend
@@ -25,5 +59,14 @@ services:
     depends_on:
       backend: { condition: service_healthy }
     restart: unless-stopped
+
+secrets:
+  jwt_private:
+    file: ./secrets/jwt_private.pem
+
+  jwt_public:
+    file: ./secrets/jwt_public.pem
+
+
 volumes:
   swarutsav-data:
