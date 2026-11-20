@@ -1,48 +1,22 @@
 services:
-  auth-service:
-    build: ./backend/auth_service
-    container_name: swarutsav-auth
-
-    environment:
-      JWT_ALGORITHM: RS256
-      JWT_ISSUER: swarutsav-auth
-      JWT_AUDIENCE: swarutsav-api
-      ACCESS_TOKEN_EXPIRE_MINUTES: 15
-      REFRESH_TOKEN_EXPIRE_DAYS: 7
-
-    secrets:
-      - jwt_private
-      - jwt_public
-
-    ports:
-      - "8001:8000"
-
-  interview-service:
-    build: ./backend/interview_service
-    container_name: swarutsav-interview
-
-    environment:
-      JWT_PUBLIC_KEY_PATH: /run/secrets/jwt_public
-      JWT_ISSUER: swarutsav-auth
-      JWT_AUDIENCE: swarutsav-api
-
-    secrets:
-      - jwt_public
-
-    ports:
-      - "8002:8000"
-
   backend:
-    build: { context: ./backend }
-    container_name: swarutsav-api
+    build:
+      context: ./backend
     environment:
       APP_ENV: ${APP_ENV:-development}
-      JWT_SECRET: ${JWT_SECRET:-local-development-secret-change-before-deployment}
+      JWT_SECRET: ${JWT_SECRET:?Set a strong JWT_SECRET in .env}
+      TOKEN_TTL_SECONDS: ${TOKEN_TTL_SECONDS:-3600}
       DATABASE_PATH: /data/swarutsav.db
       FRONTEND_URL: http://localhost:3000
       API_V1_PREFIX: /api/v1
+      XAI_API_KEY: ${XAI_API_KEY:-}
+      GROK_MODEL: ${GROK_MODEL:-grok-4}
+      ENABLE_WHISPER: ${ENABLE_WHISPER:-false}
+      WHISPER_MODEL: ${WHISPER_MODEL:-tiny}
+      RECORDING_PATH: /data/recordings
     ports: ["8000:8000"]
-    volumes: [swarutsav-data:/data]
+    volumes:
+      - swarutsav-data:/data
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
       interval: 20s
@@ -53,20 +27,13 @@ services:
   frontend:
     build:
       context: ./frontend
-      args: { REACT_APP_API_URL: http://localhost:8000/api/v1 }
-    container_name: swarutsav-web
+      args:
+        REACT_APP_API_URL: http://localhost:8000/api/v1
     ports: ["3000:80"]
     depends_on:
-      backend: { condition: service_healthy }
+      backend:
+        condition: service_healthy
     restart: unless-stopped
-
-secrets:
-  jwt_private:
-    file: ./secrets/jwt_private.pem
-
-  jwt_public:
-    file: ./secrets/jwt_public.pem
-
 
 volumes:
   swarutsav-data:
