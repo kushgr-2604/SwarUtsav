@@ -36,3 +36,25 @@
 .studio-files a{color:#1e6650;font-weight:700}
 .studio-status{padding:12px;background:#e7f2e9;color:#245c43;border-radius:9px;margin:0;line-height:1.6}
 @media(max-width:750px){.sdc-quick-links,.resource-grid,.studio-grid{grid-template-columns:1fr}.studio header{align-items:flex-start;flex-direction:column}.sdc-banner{padding:21px}.sdc-banner strong{font-size:19px}.studio{padding:14px}}
+
+
+/* Visible device readiness checks before a new interview. */
+.device-check{margin:0 0 22px;padding:21px;background:#fff;border:1px solid #d4e3dc;border-radius:14px;box-shadow:0 4px 18px #1d55450d}
+.device-check-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:17px}
+.device-check-head strong{font-size:18px;color:#234e40}
+.device-check-head p{font-size:12px;line-height:1.6;color:#68786f;margin:7px 0 0}
+.device-check-label{font-size:10px;letter-spacing:1.1px;background:#e3f1e8;color:#25604b;padding:7px 10px;border-radius:6px;font-weight:700;white-space:nowrap}
+.device-check-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.device-check-card{padding:16px;border:1px solid #e2e8e3;border-radius:11px;background:#fafcfb}
+.device-check-card>div{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.device-check-card b{font-size:14px}
+.device-check-card p{color:#66766d;font-size:12px;line-height:1.55;min-height:40px}
+.device-check-card button{background:#245c49;color:white;border:0;padding:11px 15px;border-radius:8px;font-weight:600}
+.device-check-card button:hover{background:#174837}
+.device-status{font-size:10px;background:#eef1ed;color:#6c7b71;padding:6px 8px;border-radius:10px;white-space:nowrap}
+.device-status.ready{background:#e0f2e8;color:#16573e}
+.device-check-message{padding:11px;background:#e7f3ee;color:#255d49;border-radius:8px;font-size:12px;line-height:1.6}
+.device-check-note{color:#75837b;font-size:11px;line-height:1.6;margin:12px 0 0}
+.studio-hint{background:#ebf4f0;border-left:3px solid #3d8e70;border-radius:6px;padding:13px;color:#325e4a;line-height:1.6;margin:0}
+.studio-recording-live{border:1px solid #ffd4d4;background:#fff1f1;color:#a82e2e;border-radius:8px;padding:10px 12px;font-weight:700}
+@media(max-width:700px){.device-check-cards{grid-template-columns:1fr}.device-check-head{flex-direction:column}}
