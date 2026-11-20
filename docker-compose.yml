@@ -9,6 +9,11 @@ services:
       DATABASE_PATH: /data/swarutsav.db
       FRONTEND_URL: http://localhost:3000
       API_V1_PREFIX: /api/v1
+      XAI_API_KEY: ${XAI_API_KEY:-}
+      GROK_MODEL: ${GROK_MODEL:-grok-4}
+      ENABLE_WHISPER: ${ENABLE_WHISPER:-false}
+      WHISPER_MODEL: ${WHISPER_MODEL:-tiny}
+      RECORDING_PATH: /data/recordings
     ports: ["8000:8000"]
     volumes:
       - swarutsav-data:/data
