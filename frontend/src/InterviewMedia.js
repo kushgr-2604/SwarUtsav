@@ -1,61 +1,43 @@
-import React, {useEffect, useRef, useState} from "react";
-// Browser-supported voice and optional, local-only screen capture.
-export default function InterviewMedia({question,onTranscript}) {
-  const [state,setState]=useState("");
-  const [listening,setListening]=useState(false);
-  const [capturing,setCapturing]=useState(false);
-  const [consent,setConsent]=useState(false);
-  const [url,setUrl]=useState("");
-  const speech=useRef(null),stream=useRef(null),recorder=useRef(null),chunks=useRef([]),savedUrl=useRef("");
-  const onTranscriptRef=useRef(onTranscript);
-  useEffect(()=>{onTranscriptRef.current=onTranscript},[onTranscript]);
-  function stopVoice(){window.speechSynthesis?.cancel()}
-  function stopMic(){try{speech.current?.stop()}catch(_e){} speech.current=null;setListening(false)}
-  function stopScreen(){if(recorder.current?.state==="recording")recorder.current.stop();stream.current?.getTracks().forEach(t=>t.stop());setCapturing(false)}
-  useEffect(()=>()=>{try{speech.current?.abort()}catch(_e){}window.speechSynthesis?.cancel(); if(recorder.current?.state==="recording")recorder.current.stop();stream.current?.getTracks().forEach(t=>t.stop());if(savedUrl.current)URL.revokeObjectURL(savedUrl.current)},[]);
-  useEffect(()=>{stopVoice();stopMic();stopScreen();setConsent(false)},[question]);
-  function speak(){
-    stopMic();stopVoice();
-    if(!("speechSynthesis" in window)){setState("Voice playback unavailable in this browser.");return}
-    const utterance=new SpeechSynthesisUtterance(question);utterance.lang="en-IN";utterance.rate=0.92;
-    utterance.onerror=()=>setState("Voice playback failed. Please read the displayed question.");
-    window.speechSynthesis.speak(utterance);setState("AI is speaking the question.");
-  }
-  function dictate(){
-    const Recognition=window.SpeechRecognition||window.webkitSpeechRecognition;
-    if(!Recognition){setState("Dictation unsupported. You can type your answer.");return}
-    stopVoice();stopMic();
-    try {
-      const r=new Recognition();r.lang="en-IN";r.continuous=true;r.interimResults=true;
-      r.onresult=e=>{let transcript="";for(let i=0;i<e.results.length;i++)if(e.results[i].isFinal)transcript+=e.results[i][0].transcript+" ";onTranscriptRef.current?.(transcript.trim())};
-      r.onerror=e=>{setListening(false);setState("Dictation error: "+e.error)};
-      r.onend=()=>setListening(false);r.start();speech.current=r;setListening(true);setState("Listening to your answer.");
-    } catch(e){setState("Microphone unavailable: "+e.message)}
-  }
-  async function capture(){
-    if(!consent){setState("Consent to screen capture first.");return}
-    if(!navigator.mediaDevices?.getDisplayMedia||!window.MediaRecorder){setState("Screen recording requires HTTPS/localhost and a supported browser.");return}
-    try{
-      const s=await navigator.mediaDevices.getDisplayMedia({video:true,audio:true});
-      const mime=["video/webm;codecs=vp8,opus","video/webm"].find(t=>MediaRecorder.isTypeSupported(t));
-      const r=new MediaRecorder(s,mime?{mimeType:mime}:undefined);chunks.current=[];stream.current=s;recorder.current=r;
-      r.ondataavailable=e=>{if(e.data.size)chunks.current.push(e.data)};
-      r.onstop=()=>{s.getTracks().forEach(t=>t.stop());if(savedUrl.current)URL.revokeObjectURL(savedUrl.current);savedUrl.current=URL.createObjectURL(new Blob(chunks.current,{type:r.mimeType||"video/webm"}));setUrl(savedUrl.current);setCapturing(false);setState("Local recording ready. Download it if needed.")};
-      s.getVideoTracks()[0].addEventListener("ended",stopScreen,{once:true});
-      r.start(1000);setCapturing(true);setState("Recording selected screen locally; not uploaded.");
-    }catch(e){setState(e.name==="NotAllowedError"?"Screen sharing was cancelled.":e.message)}
-  }
-  return <div className="media-tools">
-    <div className="media-buttons">
-      <button type="button" className="text-button" onClick={speak}>🔊 Hear question</button>
-      <button type="button" className="text-button" onClick={stopVoice}>Stop voice</button>
-      <button type="button" className="text-button" onClick={listening?stopMic:dictate}>{listening?"⏹ Stop dictation":"🎙 Dictate answer"}</button>
-    </div>
-    <label className="media-consent"><input type="checkbox" checked={consent} onChange={e=>setConsent(e.target.checked)}/> I consent to optional screen recording. Recording stays on my device unless I download it.</label>
-    <div className="media-buttons">
-      <button type="button" className="text-button" onClick={capturing?stopScreen:capture}>{capturing?"⏹ Stop screen recording":"⏺ Record my screen"}</button>
-      {url&&<a className="text-button" href={url} download="swarutsav-screen.webm">Download recording</a>}
-    </div>
-    {state&&<p className="muted" role="status">{state}</p>}
-  </div>;
+import React,{useEffect,useRef,useState} from "react";
+const API=process.env.REACT_APP_API_URL||"http://localhost:8000/api/v1";
+export default function InterviewMedia({question,interviewId,token,onTranscript}){
+ const [status,setStatus]=useState(""),[consent,setConsent]=useState(false),[faceConsent,setFaceConsent]=useState(false),[faceResult,setFaceResult]=useState(""),[cameraOn,setCameraOn]=useState(false),[running,setRunning]=useState({}),[files,setFiles]=useState({}),[followup,setFollowup]=useState("");
+ const video=useRef(null),camera=useRef(null),screen=useRef(null),recorders=useRef({}),chunks=useRef({}),urls=useRef({}),mic=useRef(null),micStream=useRef(null),recognition=useRef(null),transcript=useRef(onTranscript);
+ useEffect(()=>{transcript.current=onTranscript},[onTranscript]);
+ function speak(text=question){if(!window.speechSynthesis){setStatus("Voice unavailable.");return}window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang="en-IN";u.rate=.95;window.speechSynthesis.speak(u)}
+ function dictate(){const Speech=window.SpeechRecognition||window.webkitSpeechRecognition;if(!Speech){setStatus("Browser dictation unavailable; use audio transcription.");return}
+  window.speechSynthesis?.cancel();const r=new Speech();r.lang="en-IN";r.continuous=true;r.onresult=e=>{let value="";for(let i=0;i<e.results.length;i++)if(e.results[i].isFinal)value+=e.results[i][0].transcript+" ";transcript.current(value.trim())};r.onend=()=>setStatus("Dictation ended");recognition.current=r;r.start();setStatus("Dictation started.")}
+ function stopDictate(){recognition.current?.stop();recognition.current=null}
+ function saveRecording(kind,stream){
+  if(!window.MediaRecorder){setStatus("MediaRecorder unavailable");return}
+  const type=["video/webm;codecs=vp8,opus","video/webm"].find(t=>MediaRecorder.isTypeSupported(t));
+  const r=new MediaRecorder(stream,type?{mimeType:type}:undefined);recorders.current[kind]=r;chunks.current[kind]=[];
+  r.ondataavailable=e=>{if(e.data.size)chunks.current[kind].push(e.data)};
+  r.onstop=()=>{const blob=new Blob(chunks.current[kind],{type:r.mimeType||"video/webm"});if(urls.current[kind])URL.revokeObjectURL(urls.current[kind]);const url=URL.createObjectURL(blob);urls.current[kind]=url;setFiles(p=>({...p,[kind]:{blob,url}}));if(kind==="screen")stream.getTracks().forEach(t=>t.stop());setRunning(p=>({...p,[kind]:false}));setStatus(kind+" recording saved locally.")};
+  r.start(1000);setRunning(p=>({...p,[kind]:true}));
+ }
+ function stopRecording(kind){const r=recorders.current[kind];if(r?.state==="recording")r.stop();if(kind==="screen")screen.current?.getTracks().forEach(t=>t.stop())}
+ async function startScreen(){if(!consent){setStatus("Consent required.");return}try{const stream=await navigator.mediaDevices.getDisplayMedia({video:true,audio:true});screen.current=stream;stream.getVideoTracks()[0].addEventListener("ended",()=>stopRecording("screen"),{once:true});saveRecording("screen",stream)}catch(e){setStatus(e.message)}}
+ async function startCamera(){try{const stream=await navigator.mediaDevices.getUserMedia({video:true,audio:false});camera.current=stream;video.current.srcObject=stream;setCameraOn(true)}catch(e){setStatus(e.message)}}
+ function stopCamera(){stopRecording("camera");camera.current?.getTracks().forEach(t=>t.stop());camera.current=null;if(video.current)video.current.srcObject=null;setCameraOn(false)}
+ function startCameraRecording(){if(!consent){setStatus("Consent required.");return}if(!camera.current){setStatus("Start camera first.");return}saveRecording("camera",camera.current)}
+ async function upload(kind){if(!consent)return setStatus("Consent required.");const f=files[kind];if(!f)return;
+  const form=new FormData();form.append("file",f.blob,kind+".webm");
+  try{const r=await fetch(API+"/interviews/"+interviewId+"/recordings?category="+kind,{method:"POST",headers:{Authorization:"Bearer "+token},body:form});const x=await r.json();if(!r.ok)throw Error(x.detail||"Upload failed");setStatus("Private upload saved: "+x.id)}catch(e){setStatus(e.message)}
+ }
+ async function recordAnswer(){window.speechSynthesis?.cancel();try{const stream=await navigator.mediaDevices.getUserMedia({audio:true}),r=new MediaRecorder(stream),parts=[];micStream.current=stream;mic.current=r;r.ondataavailable=e=>{if(e.data.size)parts.push(e.data)};r.onstop=async()=>{stream.getTracks().forEach(t=>t.stop());setRunning(p=>({...p,audio:false}));const blob=new Blob(parts,{type:r.mimeType||"audio/webm"}),form=new FormData();form.append("file",blob,"answer.webm");try{setStatus("Transcribing with Whisper…");const resp=await fetch(API+"/voice/transcribe",{method:"POST",headers:{Authorization:"Bearer "+token},body:form});const json=await resp.json();if(!resp.ok)throw Error(json.detail||"Transcription failed");transcript.current(json.text||"");setStatus("Transcript ready; review before submitting.")}catch(e){setStatus(e.message)}};r.start(1000);setRunning(p=>({...p,audio:true}));setStatus("Recording spoken answer. Click stop when finished.")}catch(e){setStatus(e.message)}}
+ function stopAnswer(){if(mic.current?.state==="recording")mic.current.stop()}
+ async function detect(){if(!faceConsent||!camera.current||!video.current)return;const v=video.current,c=document.createElement("canvas");c.width=640;c.height=480;c.getContext("2d").drawImage(v,0,0,c.width,c.height);const blob=await new Promise(resolve=>c.toBlob(resolve,"image/jpeg",.8));const form=new FormData();form.append("image",blob,"frame.jpg");try{const res=await fetch(API+"/face/detect",{method:"POST",headers:{Authorization:"Bearer "+token},body:form});const data=await res.json();if(!res.ok)throw Error(data.detail);setFaceResult("Detected faces: "+data.face_count)}catch(e){setFaceResult(e.message)}}
+ async function getFollowup(){const ans=window.prompt("Paste or type your last answer for a contextual follow-up:");if(!ans?.trim())return;try{const r=await fetch(API+"/interviews/"+interviewId+"/followup",{method:"POST",headers:{Authorization:"Bearer "+token,"Content-Type":"application/json"},body:JSON.stringify({previous_question:question,previous_answer:ans})});const x=await r.json();if(!r.ok)throw Error(x.detail);if(x.question){setFollowup(x.question);speak(x.question)}else setStatus("Grok follow-up unavailable; continue normally.")}catch(e){setStatus(e.message)}}
+ useEffect(()=>{window.speechSynthesis?.cancel();stopDictate();setFollowup("")},[question]);
+ useEffect(()=>()=>{window.speechSynthesis?.cancel();stopDictate();["screen","camera"].forEach(stopRecording);camera.current?.getTracks().forEach(t=>t.stop());screen.current?.getTracks().forEach(t=>t.stop());micStream.current?.getTracks().forEach(t=>t.stop());Object.values(urls.current).forEach(u=>URL.revokeObjectURL(u))},[]);
+ return <section className="studio"><header><strong>AI Interview Studio</strong><small>Voice · webcam · screen · face presence</small></header>
+  <div className="studio-actions"><button type="button" onClick={()=>speak()}>🔊 Hear question</button><button type="button" onClick={()=>window.speechSynthesis?.cancel()}>Stop voice</button><button type="button" onClick={dictate}>🎙 Dictate answer</button><button type="button" onClick={stopDictate}>Stop dictation</button><button type="button" onClick={getFollowup}>AI follow-up</button></div>
+  {followup&&<p><b>AI follow-up:</b> {followup}</p>}
+  <div className="studio-grid"><div className="studio-video"><video ref={video} autoPlay playsInline muted/>{!cameraOn&&<span>Camera preview is off</span>}</div><div className="studio-settings"><label><input type="checkbox" checked={consent} onChange={e=>setConsent(e.target.checked)}/> I consent to optional recording and uploads</label><label><input type="checkbox" checked={faceConsent} onChange={e=>setFaceConsent(e.target.checked)}/> I consent to optional face analysis</label><small>Recordings stay on your device until uploaded. Face detection does not establish identity.</small></div></div>
+  <div className="studio-actions"><button type="button" onClick={cameraOn?stopCamera:startCamera}>{cameraOn?"Turn camera off":"Start webcam"}</button><button type="button" onClick={running.camera?()=>stopRecording("camera"):startCameraRecording}>{running.camera?"Stop camera recording":"Record webcam"}</button><button type="button" onClick={running.screen?()=>stopRecording("screen"):startScreen}>{running.screen?"Stop screen recording":"Record screen"}</button><button type="button" disabled={!cameraOn||!faceConsent} onClick={detect}>Detect face</button></div>
+  {faceResult&&<p role="status">{faceResult}</p>}
+  <div className="studio-actions"><button type="button" onClick={running.audio?stopAnswer:recordAnswer}>{running.audio?"Stop spoken answer":"🎤 Whisper spoken answer"}</button></div>
+  <div className="studio-files">{Object.entries(files).map(([kind,f])=><div key={kind}><b>{kind}</b><a href={f.url} download={"swarutsav-"+kind+".webm"}>Download</a><button type="button" onClick={()=>upload(kind)}>Upload privately</button></div>)}</div>
+  {status&&<p className="studio-status" role="status">{status}</p>}</section>;
 }
