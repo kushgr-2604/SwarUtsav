@@ -181,6 +181,13 @@ def create_interview(payload:InterviewInput,user=Depends(current_user)):
                 if q["id"] not in used:
                     selected.append(dict(q)); used.add(q["id"])
                 if len(selected)==payload.question_count: break
+        # Optional Grok questions supplement curated prompts.
+        from app.ai_providers import generate_questions
+        remaining=payload.question_count-len(selected)
+        if remaining:
+            for prompt in generate_questions(payload.target_role,payload.interview_type,payload.difficulty,remaining):
+                if prompt not in {q["prompt"] for q in selected}:
+                    selected.append({"id":None,"category":payload.interview_type,"prompt":prompt})
         # Fallback prompts are distinct; never return fewer questions than requested.
         templates=[
             "Explain a practical example of {role} work and its major trade-offs.",
@@ -246,7 +253,6 @@ def evaluate_answer(question:str,answer:str):
 
 @app.post(f"{API_PREFIX}/interviews/{{interview_id}}/answers",status_code=201,tags=["interviews"])
 def submit_answer(interview_id:int,payload:AnswerInput,user=Depends(current_user)):
-    scores=evaluate_answer(payload.question_text,payload.answer_text)
     with db() as conn:
         interview=conn.execute("SELECT id,status FROM interviews WHERE id=? AND user_id=?",(interview_id,user["id"])).fetchone()
         if not interview: raise HTTPException(status_code=404,detail="Interview not found")
@@ -256,6 +262,14 @@ def submit_answer(interview_id:int,payload:AnswerInput,user=Depends(current_user
         if not assigned: raise HTTPException(status_code=409,detail="All assigned questions have been answered")
         if assigned["question_id"] != payload.question_id or assigned["question_text"] != payload.question_text:
             raise HTTPException(status_code=422,detail="Answer does not match the next assigned question")
+    from app.ai_providers import evaluate_with_grok
+    scores=evaluate_with_grok(payload.question_text,payload.answer_text) or evaluate_answer(payload.question_text,payload.answer_text)
+    with db() as conn:
+        interview=conn.execute("SELECT status FROM interviews WHERE id=? AND user_id=?",(interview_id,user["id"])).fetchone()
+        answered=conn.execute("SELECT COUNT(*) FROM responses WHERE interview_id=?",(interview_id,)).fetchone()[0]
+        assigned=conn.execute("SELECT question_id,question_text FROM interview_questions WHERE interview_id=? AND position=?",(interview_id,answered)).fetchone()
+        if not interview or interview["status"]!="in_progress" or not assigned or assigned["question_id"]!=payload.question_id or assigned["question_text"]!=payload.question_text:
+            raise HTTPException(status_code=409,detail="Interview question changed; refresh and retry")
         conn.execute("INSERT INTO responses(interview_id,question_id,question_text,answer_text,relevance,completeness,clarity,feedback,created_at) VALUES(?,?,?,?,?,?,?,?,?)",(interview_id,payload.question_id,payload.question_text,payload.answer_text,scores["relevance"],scores["completeness"],scores["clarity"],scores["feedback"],now_iso()))
     return scores
 
@@ -309,3 +323,25 @@ def admin_dashboard(user=Depends(require_admin)):
     return {
         "message": "Welcome to Admin Dashboard"
     }
+
+class FollowupInput(BaseModel):
+    previous_question: str = Field(min_length=5, max_length=2000)
+    previous_answer: str = Field(min_length=1, max_length=6000)
+
+@app.post(f"{API_PREFIX}/interviews/{{interview_id}}/followup",tags=["interviews"])
+def get_followup(interview_id: int, payload: FollowupInput, user=Depends(current_user)):
+    with db() as conn:
+        row=conn.execute("SELECT target_role,difficulty,status FROM interviews WHERE id=? AND user_id=?",
+                         (interview_id,user["id"])).fetchone()
+        if not row:
+            raise HTTPException(status_code=404,detail="Interview not found")
+        if row["status"]!="in_progress":
+            raise HTTPException(status_code=409,detail="Interview already completed")
+    from app.ai_providers import contextual_followup
+    question=contextual_followup(row["target_role"],row["difficulty"],payload.previous_question,payload.previous_answer)
+    return {"question":question,"available":bool(question)}
+
+from app.media_routes import router as media_router
+from app.face_routes import router as face_router
+app.include_router(media_router)
+app.include_router(face_router)
