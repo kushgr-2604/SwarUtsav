@@ -1,0 +1,39 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    environment:
+      APP_ENV: ${APP_ENV:-development}
+      JWT_SECRET: ${JWT_SECRET:?Set a strong JWT_SECRET in .env}
+      TOKEN_TTL_SECONDS: ${TOKEN_TTL_SECONDS:-3600}
+      DATABASE_PATH: /data/swarutsav.db
+      FRONTEND_URL: http://localhost:3000
+      API_V1_PREFIX: /api/v1
+      XAI_API_KEY: ${XAI_API_KEY:-}
+      GROK_MODEL: ${GROK_MODEL:-grok-4}
+      ENABLE_WHISPER: ${ENABLE_WHISPER:-false}
+      WHISPER_MODEL: ${WHISPER_MODEL:-tiny}
+      RECORDING_PATH: /data/recordings
+    ports: ["8000:8000"]
+    volumes:
+      - swarutsav-data:/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        REACT_APP_API_URL: http://localhost:8000/api/v1
+    ports: ["3000:80"]
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  swarutsav-data:
