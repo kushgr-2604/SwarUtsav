@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - GLA Placement Prep Hub [v3000]</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    keyframes: {
+                        spinner: {
+                            '0%': { transform: 'rotate(0deg)' },
+                            '100%': { transform: 'rotate(360deg)' },
+                        },
+                        pulseGlow: {
+                            '0%, 100%': { boxShadow: '0 0 20px rgba(129, 140, 248, 0.4)' },
+                            '50%': { boxShadow: '0 0 30px rgba(129, 140, 248, 0.7)' },
+                        },
+                        bounceY: {
+                            '0%, 100%': { transform: 'translateY(-25%)', animationTimingFunction: 'cubic-bezier(0.8, 0, 1, 1)' },
+                            '50%': { transform: 'translateY(0)', animationTimingFunction: 'cubic-bezier(0, 0, 0.2, 1)' },
+                        }
+                    },
+                    animation: {
+                        'spinner': 'spinner 1s linear infinite',
+                        'pulse-glow': 'pulseGlow 3s ease-in-out infinite',
+                        'bounce-y': 'bounceY 1.5s infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="config.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+    <style>
+        /* --- Day/Night Mode Image Styling --- */
+        body {
+            font-family: 'Inter', sans-serif;
+            --bg-day: url('https://images.shiksha.com/mediadata/images/articles/1663312168phpn90Wh7.jpeg');
+            --bg-night: url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgzt2wpPoqJ2B_0kB4yAEwR2qKbJ132T5adXIPPN-SHRe3vXt1LNn8U-Zi636Ig4rfA00hCYN9ed7E4fp0J_GZMxcgTwYud7s-kQ7B7yHbLeVOzbpElPr6jfeAkzF2uxaHIofwDYFXeP3-oXXwdYBly8TOyb28EmjAG8TzZstGlkeT0eJERVUCkS7iN8Is/s1600/Gemini_Generated_Image_s4b9vos4b9vos4b9%20(1).png');
+            background-image: var(--bg-day);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            transition: background-image 0.5s ease-in-out;
+        }
+
+        body.night-mode {
+            background-image: var(--bg-night);
+        }
+
+        .dynamic-text { font-family: 'Poppins', sans-serif; }
+
+        /* --- Futuristic UI Styles --- */
+        .card-container {
+            position: relative;
+            background-color: transparent;
+            padding: 1px;
+            border-radius: 1rem;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .card-container::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: conic-gradient(from 180deg at 50% 50%, #4f46e5, #a855f7, #ec4899, #4f46e5);
+            transition: opacity 0.4s ease;
+            opacity: 0;
+            animation: rotate 4s linear infinite;
+        }
+
+        .card-container:hover::before {
+            opacity: 1;
+        }
+
+        .card-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-200">
+    <div class="fixed inset-0 bg-black/60 z-[-1]"></div>
+
+    <header class="bg-slate-900/60 backdrop-blur-lg sticky top-0 z-50 border-b border-white/10">
+        <div class="max-w-7xl mx-auto flex justify-between items-center py-4 px-6">
+            <a href="main.html" class="flex items-center">
+                <img src="https://glaonline.com/certificate/images/gla-logo-12-b.png" alt="GLA University Logo" class="h-8 w-auto mr-3">
+                <span class="text-xl font-bold text-slate-200 tracking-wide">GLA Prep Hub</span>
+            </a>
+            <div class="flex items-center space-x-4">
+                <button id="mode-toggle" class="p-2 rounded-full text-slate-400 hover:text-white hover:bg-slate-700/50 transition-colors duration-300">
+                    <svg id="sun-icon" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                    <svg id="moon-icon" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+                </button>
+                <div class="relative">
+                    <button id="profile-button" class="flex items-center space-x-2">
+                        <img class="h-10 w-10 rounded-full border-2 border-transparent hover:border-indigo-400 transition-colors" src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhMj9fWYXAUyeMebIjMj4mynMNorEmfP4aXVH9w6nTk5P4cee-nugbiQkbAuu33j9bx1QkHmi_1L3BOCYOkEeP9YNQseaKOhFxm7eiHdlKxBwXRPNkRGD5N5Y01I2WuSb4D7ivkkPgVZonMqj6ibzK3eiRC3k7xRaINvNr1N8PaEFe-Aoeb_UyAOaX-ENs/w317-h321/1000019956.jpg" alt="User avatar">
+                        <span class="hidden md:block font-semibold text-slate-200">Kushagra</span>
+                        <svg class="h-5 w-5 text-slate-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                    </button>
+                    <div id="profile-menu" class="hidden absolute right-0 mt-2 w-48 bg-slate-800/80 backdrop-blur-lg rounded-md shadow-lg py-1 border border-white/10">
+                        <a href="profile.html" class="block px-4 py-2 text-sm text-slate-200 hover:bg-indigo-500/30">My Profile</a>
+                        <a href="index.html" class="block px-4 py-2 text-sm text-red-400 hover:bg-indigo-500/30">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="relative w-full h-screen flex flex-col justify-center items-center">
+            <div class="relative z-10 text-center px-6" data-aos="fade-up">
+                <h1 class="dynamic-text text-5xl md:text-7xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-slate-100 to-indigo-400 leading-tight">
+                    Career Readiness Dashboard
+                </h1>
+                <p class="mt-4 text-xl md:text-2xl text-slate-300 font-medium max-w-3xl mx-auto">Welcome, Kushagra. Your centralized hub for placement preparation.</p>
+            </div>
+            <div class="absolute bottom-10 left-1/2 -translate-x-1/2 z-10">
+                <div class="w-8 h-8 text-slate-400 animate-bounce-y">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 5.25l-7.5 7.5-7.5-7.5m15 6l-7.5 7.5-7.5-7.5" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="relative z-20 bg-slate-900/80 backdrop-blur-md py-24">
+        
+            <section class="max-w-7xl mx-auto px-6" data-aos="fade-up">
+                <h2 class="text-3xl font-bold mb-8 text-white text-center tracking-wide">Launch Your Mission</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    
+                    <div class="card-container transform hover:-translate-y-2 transition-transform duration-300">
+                        <a href="codepractice.html" class="card-content bg-slate-900/40 backdrop-blur-xl p-6 rounded-xl flex flex-col items-start h-full">
+                            <div class="p-3 rounded-full bg-indigo-500/20 mb-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+                            </div>
+                            <h3 class="text-xl font-semibold mb-1 text-slate-100">Coding Practice</h3>
+                            <p class="text-slate-400">Sharpen algorithms and data structures.</p>
+                        </a>
+                    </div>
+
+                    <div class="card-container transform hover:-translate-y-2 transition-transform duration-300">
+                        <a href="mock.html" class="card-content bg-slate-900/40 backdrop-blur-xl p-6 rounded-xl flex flex-col items-start h-full">
+                            <div class="p-3 rounded-full bg-purple-500/20 mb-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-purple-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283-.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                            </div>
+                            <h3 class="text-xl font-semibold mb-1 text-slate-100">PREP AI</h3>
+                            <p class="text-slate-400">Simulate interviews and get live feedback.</p>
+                        </a>
+                    </div>
+                    
+                    <div class="card-container transform hover:-translate-y-2 transition-transform duration-300">
+                        <a href="mock.html" class="card-content bg-slate-900/40 backdrop-blur-xl p-6 rounded-xl flex flex-col items-start h-full">
+                            <div class="p-3 rounded-full bg-sky-500/20 mb-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-sky-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+                            </div>
+                            <h3 class="text-xl font-semibold mb-1 text-slate-100">Company Guides</h3>
+                            <p class="text-slate-400">Unlock insider info on top companies.</p>
+                        </a>
+                    </div>
+
+                    <div class="card-container transform hover:-translate-y-2 transition-transform duration-300">
+                        <a href="resume.html" class="card-content bg-slate-900/40 backdrop-blur-xl p-6 rounded-xl flex flex-col items-start h-full">
+                            <div class="p-3 rounded-full bg-emerald-500/20 mb-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                            </div>
+                            <h3 class="text-xl font-semibold mb-1 text-slate-100">Resume Builder</h3>
+                            <p class="text-slate-400">Craft a resume that beats the bots.</p>
+                        </a>
+                    </div>
+
+                    <div class="card-container transform hover:-translate-y-2 transition-transform duration-300 lg:col-span-2">
+                        <a href="communication.html" class="card-content bg-slate-900/40 backdrop-blur-xl p-6 rounded-xl flex flex-col items-start h-full">
+                            <div class="p-3 rounded-full bg-teal-500/20 mb-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-teal-300" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a6 6 0 006-6v-1.5a6 6 0 00-6-6v1.5a6 6 0 00-6 6v1.5a6 6 0 006 6z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 12.75a3 3 0 01-3-3v-1.5a3 3 0 013-3v1.5a3 3 0 013 3v1.5a3 3 0 01-3 3z" />
+                                </svg>
+                            </div>
+                            <h3 class="text-xl font-semibold mb-1 text-slate-100">Communication Hub</h3>
+                            <p class="text-slate-400">Master interviews with an AI Speech Coach. Improve fluency, pacing, and confidence.</p>
+                        </a>
+                    </div>
+                    </div>
+            </section>
+            
+            <section class="max-w-7xl mx-auto mt-24 px-6" data-aos="fade-up">
+                <h2 class="text-3xl font-bold mb-8 text-white text-center tracking-wide">Core Advantages</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="bg-slate-900/40 backdrop-blur-xl rounded-2xl p-8 border border-white/10 text-center shadow-lg shadow-black/20">
+                        <div class="mb-4 flex justify-center">
+                            <div class="p-3 rounded-full bg-indigo-500/20">
+                                <svg class="h-10 w-10 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3" /></svg>
+                            </div>
+                        </div>
+                        <h3 class="font-semibold text-lg mb-2 text-slate-100">Real Interview Experience</h3>
+                        <p class="text-slate-400">Simulate real interviews with expert feedback.</p>
+                    </div>
+                    <div class="bg-slate-900/40 backdrop-blur-xl rounded-2xl p-8 border border-white/10 text-center shadow-lg shadow-black/20">
+                        <div class="mb-4 flex justify-center">
+                            <div class="p-3 rounded-full bg-indigo-500/20">
+                                <svg class="h-10 w-10 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-6a2 2 0 012-2h2a2 2 0 012 2v6" /></svg>
+                            </div>
+                        </div>
+                        <h3 class="font-semibold text-lg mb-2 text-slate-100">Personalized Roadmap</h3>
+                        <p class="text-slate-400">Get a custom plan based on your goals and skills.</p>
+                    </div>
+                    <div class="bg-slate-900/40 backdrop-blur-xl rounded-2xl p-8 border border-white/10 text-center shadow-lg shadow-black/20">
+                        <div class="mb-4 flex justify-center">
+                            <div class="p-3 rounded-full bg-indigo-500/20">
+                                <svg class="h-10 w-10 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                            </div>
+                        </div>
+                        <h3 class="font-semibold text-lg mb-2 text-slate-100">GLAI Doubt Solver</h3>
+                        <p class="text-slate-400">Instant answers to your toughest questions.</p>
+                    </div>
+                </div>
+            </section>
+
+
+            
+            <div class="max-w-7xl mx-auto mt-24 border-t border-white/10 pt-10 px-6">
+                <p class="text-center text-slate-400" data-aos="fade-up">Personalized roadmaps and new modules are under development. Stay tuned.</p>
+            </div>
+        </div>
+    </main>
+
+    <button id="glai-open-button" class="fixed bottom-8 right-8 bg-gradient-to-br from-indigo-500 to-purple-600 text-white w-16 h-16 rounded-full shadow-lg flex items-center justify-center transform hover:scale-110 transition-transform animate-pulse-glow">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M6.343 6.343l-.707-.707m12.728 10.607l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+    </button>
+    <div id="glai-overlay" class="fixed inset-0 bg-black/60 z-40 hidden transition-opacity"></div>
+    <div id="glai-panel" class="fixed top-0 right-0 h-full w-full max-w-md bg-slate-900/70 backdrop-blur-2xl border-l border-white/10 shadow-2xl z-50 transform translate-x-full transition-transform duration-500 ease-in-out">
+        <div class="flex flex-col h-full">
+            <div class="flex justify-between items-center p-4 border-b border-white/10">
+                <h2 class="dynamic-text text-2xl font-bold text-indigo-400">GLAI Assistant</h2>
+                <button id="glai-close-button" class="p-2 rounded-full hover:bg-slate-700/50 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+            </div>
+            <div class="flex-grow p-6 overflow-y-auto">
+                <p class="text-sm text-slate-400 mb-4">Stuck on a concept? Ask any technical question below.</p>
+                <textarea id="ai-question-input" rows="4" placeholder="e.g., Explain polymorphism in Java..." class="w-full p-3 border border-slate-600 rounded-md bg-slate-900/50 text-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"></textarea>
+                <button id="ai-ask-button" class="w-full mt-3 py-3 px-4 rounded-md font-semibold text-white bg-indigo-600 hover:bg-indigo-500 transition-colors">Get Instant Answer</button>
+                <div id="ai-answer-container" class="mt-6 text-sm"></div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            AOS.init({ duration: 800, once: true, delay: 100 });
+
+
+            // Day/Night Mode Logic
+            const modeToggleButton = document.getElementById('mode-toggle');
+            const sunIcon = document.getElementById('sun-icon');
+            const moonIcon = document.getElementById('moon-icon');
+            
+            const applyMode = (mode) => {
+                if (mode === 'night') {
+                    document.body.classList.add('night-mode');
+                    sunIcon.classList.add('hidden');
+                    moonIcon.classList.remove('hidden');
+                } else {
+                    document.body.classList.remove('night-mode');
+                    sunIcon.classList.remove('hidden');
+                    moonIcon.classList.add('hidden');
+                }
+            };
+
+            modeToggleButton.addEventListener('click', () => {
+                const newMode = document.body.classList.contains('night-mode') ? 'day' : 'night';
+                localStorage.setItem('mode', newMode);
+                applyMode(newMode);
+            });
+
+            const savedMode = localStorage.getItem('mode') || 'day';
+            applyMode(savedMode);
+
+            // Profile Menu Logic
+            const profileButton = document.getElementById('profile-button');
+            const profileMenu = document.getElementById('profile-menu');
+            profileButton.addEventListener('click', (e) => { e.stopPropagation(); profileMenu.classList.toggle('hidden'); });
+            document.addEventListener('click', (e) => {
+                if (!profileButton.contains(e.target) && !profileMenu.contains(e.target)) {
+                    profileMenu.classList.add('hidden');
+                }
+            });
+            
+            // GLAI API and Panel Logic
+            async function callGeminiForDoubt(prompt) {
+                const result = await window.callGeminiAPI(prompt);
+                return result.text;
+            }
+            
+            const glaiOpenButton = document.getElementById('glai-open-button');
+            const glaiCloseButton = document.getElementById('glai-close-button');
+            const glaiPanel = document.getElementById('glai-panel');
+            const glaiOverlay = document.getElementById('glai-overlay');
+            const askButton = document.getElementById('ai-ask-button');
+            const questionInput = document.getElementById('ai-question-input');
+            const answerContainer = document.getElementById('ai-answer-container');
+            
+            const openPanel = () => { glaiOverlay.classList.remove('hidden'); glaiPanel.classList.remove('translate-x-full'); };
+            const closePanel = () => { glaiOverlay.classList.add('hidden'); glaiPanel.classList.add('translate-x-full'); };
+
+            glaiOpenButton.addEventListener('click', openPanel);
+            glaiCloseButton.addEventListener('click', closePanel);
+            glaiOverlay.addEventListener('click', closePanel);
+
+            askButton.addEventListener('click', async () => {
+                const question = questionInput.value;
+                if (!question.trim()) return;
+
+                answerContainer.innerHTML = `<div class="flex items-center justify-center p-2"><div class="w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spinner"></div></div>`;
+                
+                const prompt = `Explain the following computer science concept clearly and concisely for a student preparing for job interviews. Use simple terms and a short code example if applicable. Concept: "${question}"`;
+                
+                try {
+                    const response = await callGeminiForDoubt(prompt);
+                    const escapedResponse = response.replace(/[&<>"']/g, (character) => ({
+                        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+                    })[character]);
+                    const formattedResponse = escapedResponse
+                        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\*(.*?)\*/g, '<em>$1</em>')
+                        .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre class="bg-slate-900 p-3 rounded-md text-xs my-2 overflow-x-auto"><code>$2</code></pre>')
+                        .replace(/`(.*?)`/g, '<code class="bg-slate-700 px-1 rounded-sm text-amber-300">$1</code>')
+                        .replace(/\n/g, '<br>');
+
+                    answerContainer.innerHTML = `<div class="p-4 bg-slate-800/50 rounded-lg border border-slate-700">${formattedResponse}</div>`;
+                } catch (e) {
+                    const errorMessage = document.createElement('div');
+                    errorMessage.className = 'p-4 bg-red-900/50 rounded-lg border border-red-700 text-red-300';
+                    errorMessage.textContent = `Error: ${e.message}`;
+                    answerContainer.replaceChildren(errorMessage);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deviathon Live Leaderboard | GLA Placement Prep Hub</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        :root {
+            --background: #000000;
+            --card: rgba(10, 10, 10, 0.7);
+            --border: rgba(255, 255, 255, 0.1);
+            --primary: #6d28d9;
+            --primary-hover: #7c3aed;
+            --text-primary: #f8fafc;
+            --text-secondary: #a1a1aa;
+            --spotlight-color: rgba(124, 58, 237, 0.4);
+            --bg-day: url('https://images.shiksha.com/mediadata/images/articles/1663312168phpn90Wh7.jpeg');
+            --bg-night: url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgzt2wpPoqJ2B_0kB4yAEwR2qKbJ132T5adXIPPN-SHRe3vXt1LNn8U-Zi636Ig4rfA00hCYN9ed7E4fp0J_GZMxcgTwYud7s-kQ7B7yHbLeVOzbpElPr6jfeAkzF2uxaHIofwDYFXeP3-oXXwdYBly8TOyb28EmjAG8TzZstGlkeT0eJERVUCkS7iN8Is/s1600/Gemini_Generated_Image_s4b9vos4b9vos4b9%20(1).png');
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background);
+            color: var(--text-primary);
+            background-image: var(--bg-day);
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            transition: background-image 0.5s ease-in-out;
+        }
+        
+        body.night-mode {
+             background-image: var(--bg-night);
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--background); }
+        ::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #374151; }
+
+        .glass-card {
+            background: var(--card);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid var(--border);
+            border-radius: 1.25rem;
+        }
+        
+        .dynamic-text { font-family: 'Poppins', sans-serif; }
+        
+        @keyframes podium-glow {
+            0% { box-shadow: 0 0 5px var(--primary); }
+            50% { box-shadow: 0 0 25px var(--primary); }
+            100% { box-shadow: 0 0 5px var(--primary); }
+        }
+        
+        .podium-1 {
+            animation: podium-glow 3s infinite;
+            border-color: #ffd700; /* Gold */
+        }
+        .podium-2 {
+            animation: podium-glow 4s infinite 1s;
+             border-color: #c0c0c0; /* Silver */
+        }
+        .podium-3 {
+            animation: podium-glow 5s infinite 2s;
+            border-color: #cd7f32; /* Bronze */
+        }
+
+    </style>
+</head>
+<body class="overflow-x-hidden">
+    <div class="fixed inset-0 bg-black/50 -z-10"></div>
+    <header class="bg-black/80 backdrop-blur-lg border-b border-slate-800 p-4 z-50 flex justify-between items-center sticky top-0">
+         <a href="mock.html" class="flex items-center space-x-3">
+             <img src="https://glaonline.com/certificate/images/gla-logo-12-b.png" alt="Logo" class="h-8 w-auto">
+             <span class="text-lg font-bold text-white">Prep Hub</span>
+         </a>
+         <div class="flex items-center space-x-2">
+             <button id="mode-toggle" class="p-2">
+                  <i id="sun-icon" data-lucide="sun"></i>
+                  <i id="moon-icon" data-lucide="moon" class="hidden"></i>
+             </button>
+         </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-12">
+        <div class="text-center mb-12">
+            <h1 class="dynamic-text text-5xl font-extrabold text-white">
+                Deviathon Live Leaderboard
+            </h1>
+            <p class="text-lg text-text-secondary mt-2">Powered by GLA University</p>
+            <div class="mt-4 text-2xl font-bold text-red-400" id="live-countdown">Loading...</div>
+        </div>
+
+        <!-- Top 3 Podium -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-end mb-16">
+            <!-- 2nd Place -->
+            <div class="text-center order-2 md:order-1">
+                <div class="relative inline-block">
+                    <div class="glass-card podium-2 w-40 h-40 rounded-full mx-auto flex flex-col justify-center items-center p-4 border-4">
+                        <span class="text-5xl font-bold text-gray-300">2</span>
+                        <h3 class="text-xl font-bold mt-1 text-white">Cryptox</h3>
+                        <p class="text-sm text-gray-400">GLANHE008</p>
+                    </div>
+                </div>
+            </div>
+            <!-- 1st Place -->
+            <div class="text-center order-1 md:order-2">
+                <div class="relative inline-block">
+                    <div class="glass-card podium-1 w-56 h-56 rounded-full mx-auto flex flex-col justify-center items-center p-4 border-4 transform md:scale-110">
+                         <span class="text-7xl font-bold text-yellow-400">1</span>
+                        <h3 class="text-2xl font-bold mt-2 text-white">DevOps</h3>
+                        <p class="text-md text-gray-300">GLANHE029</p>
+                    </div>
+                </div>
+            </div>
+            <!-- 3rd Place -->
+            <div class="text-center order-3 md:order-3">
+                <div class="relative inline-block">
+                     <div class="glass-card podium-3 w-40 h-40 rounded-full mx-auto flex flex-col justify-center items-center p-4 border-4">
+                        <span class="text-5xl font-bold text-orange-400">3</span>
+                        <h3 class="text-xl font-bold mt-1 text-white">Hackops</h3>
+                        <p class="text-sm text-gray-400">GLANHE026</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rest of the Leaderboard -->
+        <div class="glass-card max-w-4xl mx-auto">
+            <div class="p-6">
+                <h2 class="text-2xl font-bold text-white mb-4">Live Rankings</h2>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="border-b border-slate-700">
+                        <tr>
+                            <th class="p-4 text-sm font-semibold text-text-secondary">Rank</th>
+                            <th class="p-4 text-sm font-semibold text-text-secondary">Team Name</th>
+                            <th class="p-4 text-sm font-semibold text-text-secondary">Team ID</th>
+                            <th class="p-4 text-sm font-semibold text-text-secondary text-right">Score</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboard-body">
+                        <!-- Teams will be dynamically inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+
+            const modeToggle = document.getElementById('mode-toggle');
+            const sunIcon = document.getElementById('sun-icon');
+            const moonIcon = document.getElementById('moon-icon');
+
+            function applyMode(mode) {
+                if (mode === 'night') {
+                    document.documentElement.classList.add('dark');
+                    document.body.classList.add('night-mode');
+                    if(sunIcon) sunIcon.classList.add('hidden');
+                    if(moonIcon) moonIcon.classList.remove('hidden');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    document.body.classList.remove('night-mode');
+                    if(sunIcon) sunIcon.classList.remove('hidden');
+                    if(moonIcon) moonIcon.classList.add('hidden');
+                }
+            }
+            
+            function toggleMode() {
+                const newMode = document.body.classList.contains('night-mode') ? 'day' : 'night';
+                localStorage.setItem('mode', newMode);
+                applyMode(newMode);
+            }
+
+            modeToggle.addEventListener('click', toggleMode);
+            const savedMode = localStorage.getItem('mode') || 'night';
+            applyMode(savedMode);
+
+            function startCountdown(elementId, endTime) {
+                const element = document.getElementById(elementId);
+                if (!element) return;
+                const interval = setInterval(() => {
+                    const now = new Date().getTime();
+                    const distance = endTime - now;
+                    if (distance < 0) {
+                        clearInterval(interval);
+                        element.textContent = "Contest Ended";
+                        return;
+                    }
+                    const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                    const s = Math.floor((distance % (1000 * 60)) / 1000);
+                    element.textContent = `Time Left: ${h}h ${m}m ${s}s`;
+                }, 1000);
+            }
+            const deviathonTime = new Date().getTime() + 1000 * 60 * 60 * 30;
+            startCountdown('live-countdown', deviathonTime);
+
+            const teams = [
+                { id: 'GLANHE001', name: 'Endgame Engineers.' },
+                { id: 'GLANHE002', name: 'The Expendables' },
+                { id: 'GLANHE003', name: 'Innosquad' },
+                { id: 'GLANHE004', name: 'Brahma Bytes' },
+                { id: 'GLANHE005', name: 'Team Asura Legion' },
+                { id: 'GLANHE006', name: "Quantum Coder's" },
+                { id: 'GLANHE007', name: 'Code Warriors' },
+                { id: 'GLANHE009', name: 'Upper4' },
+                { id: 'GLANHE010', name: 'TEAM ACHO' },
+                { id: 'GLANHE011', name: 'Impact Innovators 2.0' },
+                { id: 'GLANHE012', name: 'DEVpaglu' },
+                { id: 'GLANHE013', name: 'TechTitans' },
+                { id: 'GLANHE014', name: 'CodeXplorers' },
+                { id: 'GLANHE015', name: 'DCoderZ' },
+                { id: 'GLANHE016', name: 'DevPro Gamers' },
+                { id: 'GLANHE017', name: 'Da Meridians' },
+                { id: 'GLANHE018', name: 'White Reaper' },
+                { id: 'GLANHE019', name: 'Upper4.2' },
+                { id: 'GLANHE020', name: 'CtrlZ' },
+                { id: 'GLANHE021', name: 'Code Stormers' },
+                { id: 'GLANHE022', name: 'Team DoDo' },
+                { id: 'GLANHE024', name: 'Coderclub' },
+                { id: 'GLANHE025', name: 'Code RAP' },
+                { id: 'GLANHE027', name: 'Team Ignix' },
+                { id: 'GLANHE030', name: 'Databaes' },
+                { id: 'GLANHE031', name: 'The Boys' },
+                { id: 'GLANHE033', name: 'Caffeine Coders' },
+                { id: 'GLANHE034', name: 'Hungry Cheetah' },
+                { id: 'GLANHE035', name: 'Team HexX' },
+                { id: 'GLANH1001', name: 'Hacksmiths' },
+                { id: 'GLANH1002', name: 'Inaugural Invincibles' },
+                { id: 'GLANH1004', name: 'code storm' },
+                { id: 'GLANH1005', name: 'Visionary Coders' },
+                { id: 'GLANH1006', name: 'TechTeens' },
+                { id: 'GLANH1007', name: 'Code Nova' },
+                { id: 'GLANH1008', name: 'Cyber Knights' },
+                { id: 'GLANH1009', name: 'ALGOWARRIORS' },
+                { id: 'GLANH1010', name: 'The Tech Titans' },
+                { id: 'GLANH1011', name: 'Loop breakers' },
+                { id: 'GLANH1012', name: 'Vencedor' },
+                { id: 'GLANH1013', name: 'CodeNova' },
+                { id: 'GLANHI014', name: '404 Found' },
+                { id: 'GLANHI015', name: 'Infinite loopers' },
+                { id: 'GLANH1016', name: 'Syntax Squad' },
+                { id: 'GLANH1017', name: 'QuartetX' },
+                { id: 'GLANHI018', name: 'Hackonauts' },
+                { id: 'GLANH1019', name: 'Team Dark Mode' },
+                { id: 'GLANH1020', name: 'BINARY BRAIN' },
+                { id: 'GLANH1021', name: 'Team Vajra' },
+                { id: 'GLANH1022', name: 'CodeStorm' },
+                { id: 'GLANH1023', name: 'Hackcops' },
+                { id: 'GLANH1024', name: 'Alpha Coder' },
+                { id: 'GLANH1025', name: 'THE HACK HUB' },
+                { id: 'GLANHI026', name: 'Tech Gita Warrior' },
+                { id: 'GLANH1027', name: 'Algo Warriors' }
+            ];
+
+            const leaderboardBody = document.getElementById('leaderboard-body');
+
+            const rankedTeams = teams
+                .map(team => ({ ...team, score: Math.floor(Math.random() * 5000) + 1000 }))
+                .sort((a, b) => b.score - a.score);
+
+            rankedTeams.forEach((team, index) => {
+                const rank = index + 4; // Start rank from 4
+                const row = document.createElement('tr');
+                row.className = 'border-b border-slate-800 hover:bg-slate-800/50 transition-colors';
+                
+                row.innerHTML = `
+                    <td class="p-4 font-semibold">${rank}</td>
+                    <td class="p-4 font-semibold text-white">${team.name}</td>
+                    <td class="p-4 text-text-secondary">${team.id}</td>
+                    <td class="p-4 text-right font-mono text-primary">${team.score}</td>
+                `;
+                leaderboardBody.appendChild(row);
+            });
+        });
+    </script>
+</body>
+</html>

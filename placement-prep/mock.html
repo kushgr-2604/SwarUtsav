@@ -1,0 +1,1761 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GLA Placement Prep Hub | Hackathon Edition</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Poppins:wght@600;700&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet">
+    <script src="config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+
+    <!-- TensorFlow.js and COCO-SSD Model for Person Detection -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
+
+
+    <style>
+        :root {
+            --background: #000000;
+            --sidebar: #030303; /* Darkened sidebar */
+            --card: rgba(10, 10, 10, 0.7);
+            --border: rgba(255, 255, 255, 0.1);
+            --primary: #6d28d9;
+            --primary-hover: #7c3aed;
+            --text-primary: #f8fafc;
+            --text-secondary: #a1a1aa;
+            --spotlight-color: rgba(124, 58, 237, 0.4);
+            --bg-day: url('https://images.shiksha.com/mediadata/images/articles/1663312168phpn90Wh7.jpeg');
+            --bg-night: url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgzt2wpPoqJ2B_0kB4yAEwR2qKbJ132T5adXIPPN-SHRe3vXt1LNn8U-Zi636Ig4rfA00hCYN9ed7E4fp0J_GZMxcgTwYud7s-kQ7B7yHbLeVOzbpElPr6jfeAkzF2uxaHIofwDYFXeP3-oXXwdYBly8TOyb28EmjAG8TzZstGlkeT0eJERVUCkS7iN8Is/s1600/Gemini_Generated_Image_s4b9vos4b9vos4b9%20(1).png');
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background);
+            color: var(--text-primary);
+            background-image: var(--bg-day); /* Default to day */
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            transition: background-image 0.5s ease-in-out;
+        }
+        
+        body.night-mode {
+             background-image: var(--bg-night);
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--background); }
+        ::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #374151; }
+
+        .glass-card {
+            background: var(--card);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid var(--border);
+            border-radius: 1.25rem;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            transform-style: preserve-3d;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card:before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: radial-gradient(800px circle at var(--mouse-x) var(--mouse-y), var(--spotlight-color), transparent 40%);
+            opacity: 0;
+            transition: opacity 0.5s;
+            pointer-events: none;
+        }
+
+        .glass-card:hover:before {
+            opacity: 1;
+        }
+
+        .glass-card:hover {
+            border-color: rgba(124, 58, 237, 0.5);
+            box-shadow: 0 15px 35px rgba(124, 58, 237, 0.15);
+            transform: perspective(1200px) rotateY(1deg) rotateX(2deg) scale(1.02);
+        }
+
+        .sidebar-item.active {
+            background-image: linear-gradient(to right, var(--primary), var(--primary-hover));
+            color: white;
+            box-shadow: 0 7px 20px 0 rgba(124, 58, 237, 0.3);
+        }
+        .sidebar-item {
+            transition: all 0.2s ease-in-out;
+        }
+        .sidebar-item:hover {
+            background-color: var(--primary-hover);
+            color: white;
+            transform: translateX(5px) scale(1.02);
+        }
+        
+        .page { display: none; }
+        .page.active {
+            display: block;
+            animation: fadeIn 0.6s cubic-bezier(0.390, 0.575, 0.565, 1.000) both;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        
+        @keyframes spinner {
+            '0%': { transform: 'rotate(0deg)' },
+            '100%': { transform: 'rotate(360deg)' },
+        }
+        .animate-spinner {
+            animation: spinner 1s linear infinite;
+        }
+
+        @keyframes pulse-ring { 0% { transform: scale(.33); } 80%, 100% { opacity: 0; } }
+        @keyframes pulse-dot { 0% { transform: scale(.8); } 50% { transform: scale(1); } 100% { transform: scale(.8); } }
+        
+        .animated-gradient-text {
+            background: linear-gradient(90deg, #a78bfa, #f8fafc, #a78bfa);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradient-flow 3s linear infinite;
+        }
+
+        @keyframes gradient-flow {
+            0% { background-position: 200% center; }
+            100% { background-position: 0% center; }
+        }
+
+        .company-icon-btn img {
+            opacity: 0;
+            transform: scale(0.9);
+            transition: all 0.3s ease-in-out;
+        }
+        .company-icon-btn:hover img {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .company-icon-btn.active img {
+            opacity: 1;
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(109, 40, 217, 0.7);
+            border-radius: 999px;
+            background-color: rgba(109, 40, 217, 0.1);
+        }
+        
+        .quiz-option.selected {
+            border-color: var(--primary);
+            background-color: rgba(109, 40, 217, 0.2);
+            box-shadow: 0 0 15px rgba(109, 40, 217, 0.3);
+        }
+        .quiz-option.correct {
+            border-color: #22c55e;
+            background-color: rgba(34, 197, 94, 0.2);
+        }
+        .quiz-option.incorrect {
+            border-color: #ef4444;
+            background-color: rgba(239, 68, 68, 0.2);
+        }
+        
+        @keyframes glow-effect {
+            0%, 100% { box-shadow: 0 0 3px var(--primary); }
+            50% { box-shadow: 0 0 15px var(--primary); }
+        }
+        .glow {
+            animation: glow-effect 1.5s ease-in-out;
+        }
+
+        #modal-key-tips {
+            max-height: 150px; 
+            overflow-y: auto;
+            padding-right: 8px; 
+        }
+
+        #modal-key-tips::-webkit-scrollbar { width: 4px; }
+        #modal-key-tips::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: 10px; }
+        #modal-key-tips::-webkit-scrollbar-thumb { background: #374151; border-radius: 10px; }
+        
+        .dynamic-text { font-family: 'Poppins', sans-serif; }
+        .code-font { font-family: 'Source Code Pro', monospace; }
+        .compiler-scrollbar::-webkit-scrollbar { width: 8px; }
+        .compiler-scrollbar::-webkit-scrollbar-track { background: #1e293b; }
+        .compiler-scrollbar::-webkit-scrollbar-thumb { background: #4f46e5; border-radius: 4px; }
+        .compiler-scrollbar::-webkit-scrollbar-thumb:hover { background: #6366f1; }
+        
+        .difficulty-btn.selected {
+            background-color: #4f46e5; /* indigo-600 */
+            color: white;
+            box-shadow: 0 2px 10px rgba(79, 70, 229, 0.5);
+        }
+
+    </style>
+</head>
+<body class="overflow-x-hidden">
+
+    <div class="flex h-screen bg-black/50">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="hidden md:flex flex-col w-64 bg-sidebar border-r border-slate-800 p-4 transition-all duration-300 z-20">
+            <div class="flex items-center space-x-3 mb-12 px-2">
+                <img src="https://glaonline.com/certificate/images/gla-logo-12-b.png" alt="Logo" class="h-10 w-auto">
+                <span class="text-xl font-bold text-white tracking-wider"></span>
+            </div>
+            <nav class="flex flex-col space-y-3 flex-grow">
+                <a href="#dashboard" class="sidebar-item active flex items-center space-x-3 px-4 py-3 rounded-lg">
+                    <i data-lucide="layout-grid"></i><span>Dashboard</span>
+                </a>
+                <a href="#interview" class="sidebar-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                    <i data-lucide="mic-2"></i><span>AI Interview</span>
+                </a>
+                <a href="#quiz" class="sidebar-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                    <i data-lucide="brain-circuit"></i><span>AI Quiz</span>
+                </a>
+                <a href="#roadmaps" class="sidebar-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                    <i data-lucide="map"></i><span>Roadmaps</span>
+                </a>
+                <a href="#contests" class="sidebar-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                    <i data-lucide="swords"></i><span>Contests</span>
+                </a>
+            </nav>
+            <div class="mt-4 space-y-2">
+                 <button id="mode-toggle" class="sidebar-item flex w-full items-center justify-center space-x-3 px-4 py-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300">
+                      <i id="sun-icon" data-lucide="sun"></i>
+                      <i id="moon-icon" data-lucide="moon" class="hidden"></i>
+                      <span>Toggle Theme</span>
+                 </button>
+                 <a href="main.html" class="sidebar-item flex items-center justify-center space-x-3 px-4 py-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300">
+                      <i data-lucide="home"></i><span>Home</span>
+                 </a>
+            </div>
+        </aside>
+        
+        <!-- Mobile Header -->
+        <header class="md:hidden fixed top-0 left-0 right-0 bg-black/80 backdrop-blur-lg border-b border-slate-800 p-4 z-50 flex justify-between items-center">
+             <div class="flex items-center space-x-3">
+                 <img src="https://glaonline.com/certificate/images/gla-logo-12-b.png" alt="Logo" class="h-8 w-auto">
+                 <span class="text-lg font-bold text-white">Prep Hub</span>
+             </div>
+             <div class="flex items-center space-x-2">
+                 <button id="mobile-mode-toggle" class="p-2">
+                      <i id="mobile-sun-icon" data-lucide="sun"></i>
+                      <i id="mobile-moon-icon" data-lucide="moon" class="hidden"></i>
+                 </button>
+                 <button id="mobile-menu-btn" class="p-2"> <i data-lucide="menu"></i> </button>
+             </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-y-auto pt-20 md:pt-0">
+            <main class="flex-1 p-4 md:p-6 lg:p-8">
+                
+                <div id="dashboard-page" class="page active">
+                    <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
+                        <div>
+                            <h1 class="text-3xl sm:text-4xl font-black text-white">Dashboard</h1>
+                            <p class="text-text-secondary">Welcome back, future tech leader!</p>
+                        </div>
+                        <div class="flex items-center space-x-4 mt-4 sm:mt-0">
+                            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhMj9fWYXAUyeMebIjMj4mynMNorEmfP4aXVH9w6nTk5P4cee-nugbiQkbAuu33j9bx1QkHmi_1L3BOCYOkEeP9YNQseaKOhFxm7eiHdlKxBwXRPNkRGD5N5Y01I2WuSb4D7ivkkPgVZonMqj6ibzK3eiRC3k7xRaINvNr1N8PaEFe-Aoeb_UyAOaX-ENs/w317-h321/1000019956.jpg" alt="User" class="w-10 h-10 rounded-full border-2 border-primary">
+                        </div>
+                    </header>
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-3 glass-card p-8 flex flex-col justify-between bg-cover bg-center">
+                            <div>
+                                <h2 class="text-2xl sm:text-3xl font-extrabold animated-gradient-text">Engineer Your Success</h2>
+                                <p class="text-slate-400 mt-2 max-w-lg">Practice for top-tier companies with our Gemini-powered AI. Get instant, killer feedback to crush your interviews.</p>
+                            </div>
+                            <div class="mt-8">
+                                <a href="#interview" class="sidebar-item bg-primary text-white font-semibold px-8 py-3 rounded-lg hover:bg-primary-hover transition-all duration-300 transform hover:scale-105 shadow-lg shadow-primary/20 inline-block">
+                                    Start AI Session Now
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="lg:col-span-3 glass-card p-6">
+                            <h2 class="text-xl font-bold text-white mb-4">Explore Company Insights</h2>
+                            <div class="flex flex-col sm:flex-row gap-4 mb-6">
+                                <input type="text" id="company-insight-search" class="flex-grow w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:ring-2 focus:ring-primary focus:border-primary" placeholder="Search a company name...">
+                                <button id="find-insights-btn" class="bg-primary text-white font-semibold px-6 py-3 rounded-lg hover:bg-primary-hover transition-colors shadow-lg shadow-primary/20 flex items-center justify-center space-x-2">
+                                    <i data-lucide="search"></i><span>Find</span>
+                                </button>
+                            </div>
+                            <div id="company-info-results" class="mb-6">
+                                <!-- AI results will appear here -->
+                            </div>
+                             <h3 class="font-semibold text-text-secondary mb-4">Find your dream company:</h3>
+                            <div id="company-grid" class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-4">
+                                <!-- Curated company logos will be dynamically inserted here -->
+                            </div>
+                        </div>
+
+                        <div class="lg:col-span-3 glass-card p-6">
+                            <h2 class="text-xl font-bold text-white mb-4">Live Contests</h2>
+                             <div class="space-y-4">
+                                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 bg-slate-900/50 rounded-lg hover:bg-slate-800/60 transition-colors border-l-4 border-red-500">
+                                     <div>
+                                         <h4 class="font-semibold text-white">Deviathon</h4>
+                                         <p class="text-sm text-slate-400">Sponsored by GLA University</p>
+                                     </div>
+                                     <div class="text-left sm:text-right mt-2 sm:mt-0">
+                                         <p class="font-mono text-red-400" id="countdown-deviathon">Loading...</p>
+                                         <a href="leaderboard.html" class="text-sm text-purple-400 hover:underline">Spectate →</a>
+                                     </div>
+                                 </div>
+                             </div>
+                             <h2 class="text-xl font-bold text-white mt-8 mb-4">Upcoming Contests</h2>
+                             <div class="space-y-4">
+                                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 bg-slate-900/50 rounded-lg hover:bg-slate-800/60 transition-colors">
+                                     <div>
+                                         <h4 class="font-semibold text-white">CodeSprint Weekly #21</h4>
+                                         <p class="text-sm text-slate-400">Sponsored by Amazon</p>
+                                     </div>
+                                     <div class="text-left sm:text-right mt-2 sm:mt-0">
+                                         <p class="font-mono text-primary" id="countdown1">Loading...</p>
+                                         <a href="#" class="text-sm text-purple-400 hover:underline">Participate →</a>
+                                     </div>
+                                 </div>
+                                  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 bg-slate-900/50 rounded-lg hover:bg-slate-800/60 transition-colors">
+                                     <div>
+                                         <h4 class="font-semibold text-white">Data Structures Challenge</h4>
+                                         <p class="text-sm text-slate-400">Sponsored by Microsoft</p>
+                                     </div>
+                                     <div class="text-left sm:text-right mt-2 sm:mt-0">
+                                         <p class="font-mono text-primary" id="countdown2">Loading...</p>
+                                         <a href="#" class="text-sm text-purple-400 hover:underline">Participate →</a>
+                                     </div>
+                                 </div>
+                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="interview-page" class="page">
+                     <h1 class="text-3xl sm:text-4xl font-bold text-white mb-8">Upgraded AI Mock Interview</h1>
+                     <div id="interview-setup" class="glass-card p-8 max-w-2xl mx-auto">
+                         <h2 class="text-2xl font-bold text-center text-white mb-6">Configure Your Session</h2>
+                         
+                         <div class="space-y-6">
+                             <div>
+                                 <label for="resume-upload" class="block text-sm font-medium text-slate-300 mb-2">Upload Your Resume (Optional)</label>
+                                 <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-slate-600 border-dashed rounded-md">
+                                     <div class="space-y-1 text-center">
+                                         <i data-lucide="file-text" class="mx-auto h-12 w-12 text-slate-400"></i>
+                                         <div class="flex text-sm text-slate-500">
+                                             <label for="resume-upload-input" class="relative cursor-pointer bg-slate-800 rounded-md font-medium text-primary hover:text-primary-hover focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary-hover px-1">
+                                                 <span>Upload a file</span>
+                                                 <input id="resume-upload-input" name="resume-upload" type="file" class="sr-only" accept=".pdf">
+                                             </label>
+                                             <p class="pl-1">or drag and drop</p>
+                                         </div>
+                                         <p class="text-xs text-slate-500" id="resume-file-name">PDF up to 2MB</p>
+                                     </div>
+                                 </div>
+                                 <p id="resume-validation-msg" class="text-green-400 text-xs mt-1 h-4"></p>
+                             </div>
+                              <div>
+                                  <label for="company-search" class="block text-sm font-medium text-slate-300 mb-2">Target Company</label>
+                                  <div class="relative">
+                                      <input type="text" id="company-search" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:ring-2 focus:ring-primary focus:border-primary" placeholder="E.g., Google, Microsoft, a startup...">
+                                  </div>
+                                  <p id="company-validation-msg" class="text-red-400 text-xs mt-1 h-4"></p>
+                              </div>
+                              <div>
+                                  <label for="role-select" class="block text-sm font-medium text-slate-300 mb-2">Target Role</label>
+                                  <select id="role-select" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:ring-2 focus:ring-primary focus:border-primary">
+                                      <option>Software Development Engineer (SDE-1)</option>
+                                      <option>Data Analyst</option>
+                                      <option>Product Manager</option>
+                                      <option>Cloud Engineer</option>
+                                  </select>
+                              </div>
+                              <div>
+                                  <label for="type-select" class="block text-sm font-medium text-slate-300 mb-2">Interview Type</label>
+                                  <select id="type-select" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:ring-2 focus:ring-primary focus:border-primary">
+                                      <option value="technical">Technical (Data Structures & Algorithms)</option>
+                                      <option value="behavioral">Behavioral (STAR Method)</option>
+                                      <option value="system-design">System Design</option>
+                                  </select>
+                              </div>
+                              <div id="difficulty-selection-container">
+                                  <label class="block text-sm font-medium text-slate-300 mb-2">Difficulty</label>
+                                  <div id="interview-difficulty-selector" class="flex justify-start space-x-2 bg-slate-800 p-1 rounded-xl">
+                                      <button data-level="Easy" class="difficulty-btn w-full px-4 py-2 rounded-lg font-semibold text-slate-300 hover:bg-slate-700 transition-all duration-300">Easy</button>
+                                      <button data-level="Medium" class="difficulty-btn w-full px-4 py-2 rounded-lg font-semibold text-slate-300 selected transition-all duration-300">Medium</button>
+                                      <button data-level="Hard" class="difficulty-btn w-full px-4 py-2 rounded-lg font-semibold text-slate-300 hover:bg-slate-700 transition-all duration-300">Hard</button>
+                                  </div>
+                              </div>
+                              <button id="start-interview-btn" class="w-full bg-primary text-white font-semibold py-3 rounded-lg hover:bg-primary-hover transition-colors shadow-lg shadow-primary/30 flex items-center justify-center space-x-2">
+                                  <i data-lucide="play-circle"></i>
+                                  <span>Start Interview</span>
+                              </button>
+                         </div>
+                     </div>
+                     
+                     <div id="interview-session" class="hidden">
+                         <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+                             <!-- Left Panel: Content changes based on interview type -->
+                             <div class="lg:col-span-3">
+                                 <!-- Spoken Interview UI -->
+                                 <div id="spoken-interview-ui" class="hidden">
+                                    <div class="glass-card p-6 lg:p-8">
+                                        <div class="flex justify-between items-center mb-4">
+                                            <h2 class="text-xl font-bold text-white">Interview Question</h2>
+                                            <button id="end-interview-btn" class="text-sm bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 rounded-lg transition-colors">End Session</button>
+                                        </div>
+                                        <div id="question-area" class="bg-slate-900/50 p-4 rounded-lg min-h-[150px] text-slate-300">
+                                            <div class="flex items-center justify-center h-full" id="question-loader">
+                                                <i data-lucide="loader-2" class="animate-spin h-8 w-8 text-primary"></i>
+                                                <span class="ml-3">Generating your first question...</span>
+                                            </div>
+                                            <p id="question-text" class="hidden"></p>
+                                        </div>
+                                        <div class="mt-6 text-center">
+                                            <button id="start-answering-btn" class="bg-green-600 text-white font-semibold py-3 px-8 rounded-lg hover:bg-green-700 transition-colors shadow-lg shadow-green-500/20 flex items-center justify-center space-x-2 w-full disabled:bg-gray-500 disabled:cursor-not-allowed">
+                                                <i data-lucide="mic"></i>
+                                                <span>Start Answering</span>
+                                            </button>
+                                            <div id="recording-indicator" class="hidden items-center justify-center mt-4 text-slate-400">
+                                               <div class="relative flex items-center justify-center w-8 h-8">
+                                                   <span class="absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75" style="animation: pulse-ring 1.25s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;"></span>
+                                                   <span class="relative inline-flex rounded-full h-3 w-3 bg-red-600" style="animation: pulse-dot 1.25s cubic-bezier(0.455, 0.03, 0.515, 0.955) -.4s infinite;"></span>
+                                               </div>
+                                               <span class="ml-2">Recording... Click to Stop</span>
+                                           </div>
+                                        </div>
+                                        <div class="mt-4">
+                                            <h3 class="font-semibold text-white mb-2">Your Answer (Live Transcript):</h3>
+                                            <p id="transcript-area" class="text-slate-400 text-sm min-h-[50px] bg-slate-900/50 p-3 rounded-lg"></p>
+                                        </div>
+                                    </div>
+                                 </div>
+                                 
+                                 <!-- Coding Interview UI -->
+                                 <div id="coding-interview-ui" class="hidden h-[85vh]">
+                                    <div class="glass-card h-full rounded-2xl shadow-2xl flex flex-col border border-slate-700">
+                                        <div class="flex-shrink-0 flex justify-between items-center p-4 border-b border-slate-700">
+                                            <h2 id="coding-problem-title" class="dynamic-text text-xl font-bold text-indigo-400">Problem Title</h2>
+                                            <div>
+                                                <button id="next-coding-question-btn" class="text-sm bg-slate-700 hover:bg-slate-600 text-white font-semibold px-4 py-2 rounded-lg transition-colors mr-2">Next</button>
+                                                <button id="end-coding-interview-btn" class="text-sm bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 rounded-lg transition-colors">End</button>
+                                            </div>
+                                        </div>
+                                        <div class="flex-grow flex flex-col md:flex-row overflow-hidden">
+                                            <div id="coding-problem-description" class="w-full md:w-2/5 p-6 overflow-y-auto compiler-scrollbar border-b md:border-b-0 md:border-r border-slate-700"></div>
+                                            <div class="w-full md:w-3/5 flex flex-col">
+                                                <div class="flex-grow h-1/2 relative">
+                                                    <textarea id="code-editor" class="code-font w-full h-full p-4 bg-[#1E1E1E] text-slate-200 outline-none resize-none border-b border-slate-700" placeholder="Write your code here..."></textarea>
+                                                </div>
+                                                <div class="flex-grow h-1/2 flex flex-col bg-slate-800/50">
+                                                    <div class="flex-shrink-0 flex border-b border-slate-700">
+                                                       <button id="tab-feedback" class="tab-btn px-4 py-2 font-semibold border-b-2 border-indigo-500 text-white">AI Analysis</button>
+                                                       <button id="tab-advanced" class="tab-btn px-4 py-2 font-semibold border-b-2 border-transparent text-slate-400">Advanced</button>
+                                                    </div>
+                                                    <div id="ai-feedback" class="flex-grow p-6 overflow-y-auto compiler-scrollbar">
+                                                        <div id="feedback-placeholder" class="text-center text-gray-400 flex flex-col justify-center h-full">
+                                                            <i data-lucide="bot" class="w-12 h-12 mx-auto text-slate-600"></i>
+                                                            <p class="mt-2 font-semibold">AI Analysis will appear here.</p>
+                                                            <p class="text-sm">Submit your code to get feedback.</p>
+                                                        </div>
+                                                        <div id="feedback-content" class="hidden"></div>
+                                                    </div>
+                                                    <div id="advanced-tools" class="hidden flex-grow p-4 overflow-y-auto compiler-scrollbar space-y-3">
+                                                         <div class="flex space-x-2">
+                                                             <button id="complexity-btn" disabled class="flex-1 text-xs py-2 px-2 rounded-lg font-semibold text-white bg-slate-700 hover:bg-slate-600 disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed transition">Complexity</button>
+                                                             <button id="optimize-btn" disabled class="flex-1 text-xs py-2 px-2 rounded-lg font-semibold text-white bg-slate-700 hover:bg-slate-600 disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed transition">Optimize</button>
+                                                             <button id="test-cases-btn" class="flex-1 text-xs py-2 px-2 rounded-lg font-semibold text-white bg-slate-700 hover:bg-slate-600 transition">Test Cases</button>
+                                                         </div>
+                                                         <div id="advanced-analysis-content" class="mt-2 p-3 bg-slate-900/50 rounded-lg min-h-[50px]"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="flex-shrink-0 flex justify-end p-3 border-t border-slate-700">
+                                            <button id="submit-code-btn" class="py-2 px-6 rounded-lg shadow-lg font-semibold text-white bg-indigo-600 hover:bg-indigo-500 transition-colors flex items-center">
+                                                <span id="submit-btn-text">Submit & Analyze</span>
+                                                <div id="submit-spinner" class="hidden w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spinner ml-2"></div>
+                                            </button>
+                                        </div>
+                                    </div>
+                                 </div>
+                             </div>
+
+                             <!-- Right Panel: Camera and analysis, always visible -->
+                             <div class="lg:col-span-2 grid grid-cols-1 gap-8">
+                                 <div class="glass-card p-2 relative">
+                                     <video id="user-camera" autoplay playsinline muted class="w-full h-full object-cover rounded-xl"></video>
+                                     <canvas id="detection-canvas" class="absolute top-0 left-0 w-full h-full"></canvas>
+                                     <div id="multi-person-warning" class="hidden absolute top-0 left-0 w-full bg-red-600/80 text-white text-center p-2 font-bold animate-pulse">
+                                         Multiple people detected! Please ensure you are alone.
+                                     </div>
+                                 </div>
+                                 <div class="glass-card p-6 lg:p-8">
+                                     <h2 class="text-xl font-bold text-white mb-4">Body Language Analysis</h2>
+                                     <div id="body-language-feedback" class="space-y-2 text-slate-400">
+                                         <div class="flex items-center justify-center h-full">
+                                             <p>Live analysis will appear here...</p>
+                                         </div>
+                                     </div>
+                                 </div>
+                                 <div id="spoken-feedback-container" class="glass-card p-6 lg:p-8">
+                                     <h2 class="text-xl font-bold text-white mb-4">AI Feedback</h2>
+                                     <div id="feedback-area" class="space-y-4 overflow-y-auto max-h-96">
+                                         <div class="flex items-center justify-center h-full text-slate-500">
+                                             <p>Your feedback will appear here after you answer.</p>
+                                         </div>
+                                     </div>
+                                 </div>
+                             </div>
+                         </div>
+                     </div>
+                </div>
+
+                <div id="quiz-page" class="page">
+                    <h1 class="text-3xl sm:text-4xl font-bold text-white mb-8">AI Technical Quiz</h1>
+                    <div id="quiz-setup" class="glass-card p-8 max-w-2xl mx-auto">
+                        <h2 class="text-2xl font-bold text-center text-white mb-6">Configure Your Quiz</h2>
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-300 mb-2">Language</label>
+                                <select id="quiz-language-select" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:ring-2 focus:ring-primary focus:border-primary">
+                                    <option>Python</option>
+                                    <option>Java</option>
+                                    <option>C++</option>
+                                    <option>JavaScript</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-300 mb-2">Difficulty</label>
+                                <select id="quiz-difficulty-select" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:ring-2 focus:ring-primary focus:border-primary">
+                                    <option>Easy</option>
+                                    <option>Medium</option>
+                                    <option>Hard</option>
+                                </select>
+                            </div>
+                            <button id="start-quiz-btn" class="w-full bg-primary text-white font-semibold py-3 rounded-lg hover:bg-primary-hover transition-colors shadow-lg shadow-primary/30 flex items-center justify-center space-x-2">
+                                <i data-lucide="play-circle"></i>
+                                <span>Start Quiz</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="quiz-session" class="hidden max-w-4xl mx-auto">
+                        <div id="quiz-loader" class="text-center">
+                             <i data-lucide="loader-2" class="animate-spin h-8 w-8 text-primary mx-auto"></i>
+                             <p class="mt-4 text-slate-400">Generating your quiz questions...</p>
+                        </div>
+                        <div id="quiz-content" class="hidden">
+                            <div class="flex justify-between items-center mb-4">
+                                <h2 id="question-counter" class="text-lg font-semibold">Question 1/20</h2>
+                                <button id="end-quiz-btn" class="text-sm bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 rounded-lg transition-colors">End Quiz</button>
+                            </div>
+                             <div class="w-full bg-slate-700 rounded-full h-2.5 mb-6">
+                                 <div id="quiz-progress-bar" class="bg-primary h-2.5 rounded-full" style="width: 5%"></div>
+                             </div>
+                            <div class="glass-card p-8">
+                                <p id="quiz-question-text" class="text-xl font-semibold mb-6"></p>
+                                <div id="quiz-options-container" class="space-y-3"></div>
+                                <button id="next-quiz-question-btn" class="mt-8 w-full bg-primary text-white font-semibold py-3 rounded-lg hover:bg-primary-hover transition-colors disabled:bg-gray-500 disabled:cursor-not-allowed">Next Question</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="roadmaps-page" class="page">
+                    <h1 class="text-3xl sm:text-4xl font-black text-white mb-6">Company Roadmaps</h1>
+                    <div class="flex flex-col sm:flex-row gap-4 mb-6">
+                        <input type="text" id="roadmap-search" class="flex-grow w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:ring-2 focus:ring-primary focus:border-primary" placeholder="Search for a company roadmap...">
+                        <button id="roadmap-find-btn" class="bg-primary text-white font-semibold px-6 py-3 rounded-lg hover:bg-primary-hover transition-colors shadow-lg shadow-primary/20 flex items-center justify-center space-x-2">
+                            <i data-lucide="search"></i><span>Find Roadmap</span>
+                        </button>
+                    </div>
+                    <div id="roadmap-search-results" class="mb-8">
+                        <!-- AI results for roadmap search will appear here -->
+                    </div>
+                    <h3 class="font-semibold text-text-secondary mt-8 mb-4 border-t border-slate-800 pt-8">Or browse all available roadmaps:</h3>
+                    <div id="roadmap-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    </div>
+                </div>
+                
+                <div id="roadmap-detail-page" class="page">
+                    <button id="back-to-roadmaps" class="sidebar-item mb-8 flex items-center space-x-2 text-sm font-semibold px-4 py-2 rounded-lg">
+                        <i data-lucide="arrow-left"></i><span>Back to Dashboard</span>
+                    </button>
+                    <div id="roadmap-detail-content">
+                        <!-- AI Generated content will be loaded here -->
+                    </div>
+                </div>
+
+                <div id="contests-page" class="page">
+                    <h1 class="text-3xl sm:text-4xl font-black text-white mb-6">Coding Contests</h1>
+                    <div class="glass-card p-6 mb-6">
+                        <h2 class="text-xl font-bold text-white mb-4">Live Contests</h2>
+                         <div class="space-y-4">
+                              <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 bg-slate-900/50 rounded-lg hover:bg-slate-800/60 transition-colors border-l-4 border-red-500">
+                                 <div>
+                                     <h4 class="font-semibold text-white">Deviathon</h4>
+                                     <p class="text-sm text-slate-400">Sponsored by GLA University</p>
+                                 </div>
+                                 <div class="text-left sm:text-right mt-2 sm:mt-0">
+                                     <p class="font-mono text-red-400" id="countdown5">Loading...</p>
+                                     <a href="leaderboard.html" class="text-sm text-purple-400 hover:underline">Spectate →</a>
+                                 </div>
+                             </div>
+                         </div>
+                    </div>
+                    <div class="glass-card p-6">
+                        <h2 class="text-xl font-bold text-white mb-4">Upcoming Contests</h2>
+                         <div class="space-y-4">
+                             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 bg-slate-900/50 rounded-lg hover:bg-slate-800/60 transition-colors">
+                                 <div>
+                                     <h4 class="font-semibold text-white">CodeSprint Weekly #21</h4>
+                                     <p class="text-sm text-slate-400">Sponsored by Amazon</p>
+                                 </div>
+                                 <div class="text-left sm:text-right mt-2 sm:mt-0">
+                                     <p class="font-mono text-primary" id="countdown3">Loading...</p>
+                                     <a href="#" class="text-sm text-purple-400 hover:underline">Participate →</a>
+                                 </div>
+                             </div>
+                              <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 bg-slate-900/50 rounded-lg hover:bg-slate-800/60 transition-colors">
+                                 <div>
+                                     <h4 class="font-semibold text-white">Data Structures Challenge</h4>
+                                     <p class="text-sm text-slate-400">Sponsored by Microsoft</p>
+                                 </div>
+                                 <div class="text-left sm:text-right mt-2 sm:mt-0">
+                                     <p class="font-mono text-primary" id="countdown4">Loading...</p>
+                                     <a href="#" class="text-sm text-purple-400 hover:underline">Participate →</a>
+                                 </div>
+                             </div>
+                         </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <div id="session-summary-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+         <div class="glass-card max-w-lg w-full p-8 relative">
+             <button id="close-modal-btn" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+                 <i data-lucide="x"></i>
+             </button>
+             <div class="text-center">
+                 <i data-lucide="award" class="w-16 h-16 text-primary mx-auto mb-4"></i>
+                 <h2 id="modal-title" class="text-2xl font-bold text-white">Session Summary</h2>
+                 <p id="modal-subtitle" class="text-slate-400 mt-2">Great work! Here's how you performed in this session.</p>
+             </div>
+             <div class="my-6 text-center">
+                 <p class="text-slate-300">Overall Score</p>
+                 <p id="modal-avg-score" class="text-5xl font-bold text-white mt-1">8.5</p>
+             </div>
+             <div>
+                 <h3 class="font-semibold text-white mb-3">Key Improvement Tips:</h3>
+                 <ul id="modal-key-tips" class="space-y-2 list-disc list-inside text-slate-400 text-sm">
+                 </ul>
+             </div>
+             <div class="mt-8 flex flex-col sm:flex-row gap-3">
+                <button id="modal-close-explicit-btn" class="w-full bg-slate-700 text-white font-semibold py-3 rounded-lg hover:bg-slate-600 transition-colors">Close</button>
+                <button id="modal-return-btn" class="w-full bg-primary text-white font-semibold py-3 rounded-lg hover:bg-primary-hover transition-colors">Return to Dashboard</button>
+            </div>
+         </div>
+    </div>
+
+    <!-- Full Screen Warning Modal -->
+    <div id="fullscreen-warning-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="glass-card max-w-md w-full p-8 relative border-2 border-red-500">
+            <div class="text-center">
+                <i data-lucide="alert-triangle" class="w-16 h-16 text-red-500 mx-auto mb-4"></i>
+                <h2 class="text-2xl font-bold text-white">Warning: Full Screen Required</h2>
+                <p class="text-slate-400 mt-2">Leaving the full-screen environment has been flagged. Please return to full screen to continue the interview.</p>
+            </div>
+            <div class="mt-8 flex flex-col">
+               <button id="re-enter-fullscreen-btn" class="w-full bg-red-600 text-white font-semibold py-3 rounded-lg hover:bg-red-700 transition-colors">Return to Full Screen</button>
+           </div>
+        </div>
+   </div>
+    
+    <div id="prompt-inspector" class="hidden fixed bottom-4 right-4 w-full max-w-lg bg-sidebar border-border rounded-lg shadow-2xl z-50 animate-fadeIn">
+        <div class="flex justify-between items-center p-4 border-b border-border">
+            <h3 class="font-bold text-white flex items-center"><i data-lucide="terminal-square" class="mr-2"></i>Prompt Inspector</h3>
+            <button id="close-inspector-btn" class="p-1 hover:text-white text-text-secondary"><i data-lucide="x"></i></button>
+        </div>
+        <div class="p-4">
+            <p class="text-xs text-text-secondary mb-2">This is the exact prompt sent to the AI for the last operation.</p>
+            <pre id="prompt-content" class="text-sm text-slate-300 bg-black p-3 rounded-md max-h-80 overflow-y-auto whitespace-pre-wrap"></pre>
+            <button id="copy-prompt-btn" class="mt-4 w-full bg-primary/20 text-primary font-semibold py-2 rounded-lg hover:bg-primary/30 transition-colors flex items-center justify-center space-x-2">
+                <i data-lucide="copy"></i><span>Copy Prompt</span>
+            </button>
+        </div>
+    </div>
+
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        lucide.createIcons();
+        if (window.pdfjsLib) {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js';
+        }
+
+        document.body.addEventListener('mousemove', e => {
+            document.querySelectorAll('.glass-card').forEach(card => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                card.style.setProperty('--mouse-x', `${x}px`);
+                card.style.setProperty('--mouse-y', `${y}px`);
+            });
+        });
+        
+        const modeToggle = document.getElementById('mode-toggle');
+        const mobileModeToggle = document.getElementById('mobile-mode-toggle');
+        const sunIcon = document.getElementById('sun-icon');
+        const moonIcon = document.getElementById('moon-icon');
+        const mobileSunIcon = document.getElementById('mobile-sun-icon');
+        const mobileMoonIcon = document.getElementById('mobile-moon-icon');
+
+        function applyMode(mode) {
+            if (mode === 'night') {
+                document.body.classList.add('night-mode');
+                if(sunIcon) sunIcon.classList.add('hidden');
+                if(moonIcon) moonIcon.classList.remove('hidden');
+                if(mobileSunIcon) mobileSunIcon.classList.add('hidden');
+                if(mobileMoonIcon) mobileMoonIcon.classList.remove('hidden');
+            } else {
+                document.body.classList.remove('night-mode');
+                if(sunIcon) sunIcon.classList.remove('hidden');
+                if(moonIcon) moonIcon.classList.add('hidden');
+                if(mobileSunIcon) mobileSunIcon.classList.remove('hidden');
+                if(mobileMoonIcon) mobileMoonIcon.classList.add('hidden');
+            }
+        }
+        
+        function toggleMode() {
+            const newMode = document.body.classList.contains('night-mode') ? 'day' : 'night';
+            localStorage.setItem('mode', newMode);
+            applyMode(newMode);
+        }
+
+        modeToggle.addEventListener('click', toggleMode);
+        mobileModeToggle.addEventListener('click', toggleMode);
+        const savedMode = localStorage.getItem('mode') || 'night';
+        applyMode(savedMode);
+
+        const pages = document.querySelectorAll('.page');
+        const sidebarItems = document.querySelectorAll('.sidebar-item');
+        
+        function navigate(hash) {
+            pages.forEach(p => p.classList.remove('active'));
+            sidebarItems.forEach(i => i.classList.remove('active'));
+            let targetPage = document.querySelector(`${hash}-page`);
+            let targetSidebarItem = document.querySelector(`.sidebar-item[href="${hash}"]`);
+
+            if(hash.startsWith('#roadmap-detail-')) {
+                targetPage = document.getElementById('roadmap-detail-page');
+                targetSidebarItem = document.querySelector(`.sidebar-item[href="#roadmaps"]`);
+            }
+            if (targetPage) targetPage.classList.add('active');
+            else document.getElementById('dashboard-page').classList.add('active');
+            if(targetSidebarItem) targetSidebarItem.classList.add('active');
+            else document.querySelector('.sidebar-item[href="#dashboard"]').classList.add('active');
+        }
+        
+        sidebarItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                const href = item.getAttribute('href');
+                if (href && href.startsWith('#')) {
+                    e.preventDefault();
+                    window.location.hash = href;
+                }
+            });
+        });
+
+        window.addEventListener('hashchange', () => {
+            const hash = window.location.hash || '#dashboard';
+            if (hash.startsWith('#roadmap-detail-')) {
+                const companyName = hash.split('-').slice(2).join('-');
+                showRoadmapDetail(companyName);
+            }
+            navigate(hash);
+        });
+        
+        const initialHash = window.location.hash || '#dashboard';
+        if (initialHash.startsWith('#roadmap-detail-')) {
+            const companyName = initialHash.split('-').slice(2).join('-');
+            showRoadmapDetail(companyName);
+        }
+        navigate(initialHash);
+        
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const sidebar = document.getElementById('sidebar');
+        mobileMenuBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('hidden');
+            if (!sidebar.classList.contains('hidden')) {
+                sidebar.classList.add('absolute', 'h-full', 'w-64');
+            } else {
+                sidebar.classList.remove('absolute', 'h-full', 'w-64');
+            }
+        });
+
+        function startCountdown(elementId, endTime) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+            const interval = setInterval(() => {
+                const now = new Date().getTime();
+                const distance = endTime - now;
+                if (distance < 0) {
+                    clearInterval(interval);
+                    element.textContent = "Contest Ended";
+                    return;
+                }
+                const d = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const s = Math.floor((distance % (1000 * 60)) / 1000);
+                element.textContent = `${d}d ${h}h ${m}m ${s}s`;
+            }, 1000);
+        }
+
+        const startInterviewBtn = document.getElementById('start-interview-btn');
+        const interviewSetup = document.getElementById('interview-setup');
+        
+        const interviewSession = document.getElementById('interview-session');
+        const spokenInterviewUI = document.getElementById('spoken-interview-ui');
+        const codingInterviewUI = document.getElementById('coding-interview-ui');
+        const spokenFeedbackContainer = document.getElementById('spoken-feedback-container');
+
+        const endInterviewBtn = document.getElementById('end-interview-btn');
+        const endCodingInterviewBtn = document.getElementById('end-coding-interview-btn');
+        const questionLoader = document.getElementById('question-loader');
+        const questionText = document.getElementById('question-text');
+        const startAnsweringBtn = document.getElementById('start-answering-btn');
+        const recordingIndicator = document.getElementById('recording-indicator');
+        const transcriptArea = document.getElementById('transcript-area');
+        const feedbackArea = document.getElementById('feedback-area');
+        const typeSelect = document.getElementById('type-select');
+        const companySearchInput = document.getElementById('company-search');
+        const companyValidationMsg = document.getElementById('company-validation-msg');
+        
+        const userCamera = document.getElementById('user-camera');
+        const resumeUploadInput = document.getElementById('resume-upload-input');
+        const resumeFileName = document.getElementById('resume-file-name');
+        const resumeValidationMsg = document.getElementById('resume-validation-msg');
+        const bodyLanguageFeedback = document.getElementById('body-language-feedback');
+        
+        let interviewDifficulty = 'Medium';
+        const difficultySelector = document.getElementById('interview-difficulty-selector');
+        difficultySelector.addEventListener('click', (e) => {
+            const button = e.target.closest('.difficulty-btn');
+            if (!button) return;
+            difficultySelector.querySelectorAll('.difficulty-btn').forEach(b => b.classList.remove('selected'));
+            button.classList.add('selected');
+            interviewDifficulty = button.dataset.level;
+        });
+
+        let recognition;
+        let isRecording = false;
+        let isInterviewActive = false;
+        let sessionScores = [];
+        let sessionKeyTips = [];
+        let localStream;
+        let finalTranscript = '';
+        let resumeText = '';
+        let bodyLanguageInterval;
+        
+        let model = null;
+        let animationFrameId = null;
+
+        cocoSsd.load().then(loadedModel => {
+            model = loadedModel;
+            console.log("Person detection model loaded successfully.");
+        }).catch(error => {
+            console.error("Error loading person detection model:", error);
+        });
+
+        resumeUploadInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            if (file.type !== 'application/pdf') {
+                resumeValidationMsg.textContent = 'Please upload a PDF file.';
+                resumeValidationMsg.classList.replace('text-green-400', 'text-red-400');
+                return;
+            }
+            if (file.size > 2 * 1024 * 1024) {
+                resumeValidationMsg.textContent = 'File size should be less than 2MB.';
+                 resumeValidationMsg.classList.replace('text-green-400', 'text-red-400');
+                return;
+            }
+            resumeFileName.textContent = `Analyzing ${file.name}...`;
+            const reader = new FileReader();
+            reader.onload = async (event) => {
+                const pdfData = new Uint8Array(event.target.result);
+                const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
+                let text = '';
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const textContent = await page.getTextContent();
+                    text += textContent.items.map(item => item.str).join(' ');
+                }
+                resumeText = text;
+                resumeValidationMsg.textContent = '✓ Resume analyzed successfully!';
+                resumeValidationMsg.classList.replace('text-red-400', 'text-green-400');
+                 resumeFileName.textContent = file.name;
+            };
+            reader.readAsArrayBuffer(file);
+        });
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = 'en-US';
+            
+            recognition.onresult = (event) => {
+                let interimTranscript = '';
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) {
+                        finalTranscript += event.results[i][0].transcript + '. ';
+                    } else {
+                        interimTranscript += event.results[i][0].transcript;
+                    }
+                }
+                transcriptArea.textContent = finalTranscript + interimTranscript;
+            };
+            
+            recognition.onerror = (event) => {
+                console.error("Speech recognition error:", event.error);
+                transcriptArea.textContent = `Error during recognition: ${event.error}. Please try again.`;
+                if (isRecording) {
+                    isRecording = false;
+                    startAnsweringBtn.classList.replace('bg-red-600', 'bg-green-600');
+                    startAnsweringBtn.innerHTML = `<i data-lucide="mic"></i><span>Start Answering</span>`;
+                    recordingIndicator.classList.add('hidden');
+                    lucide.createIcons();
+                }
+            };
+
+            recognition.onend = () => { if (isRecording) recognition.start(); };
+        } else {
+            console.error("Speech Recognition not supported.");
+            if(startAnsweringBtn) {
+                startAnsweringBtn.disabled = true;
+                startAnsweringBtn.textContent = "Browser Not Supported";
+            }
+        }
+
+        async function startCamera() {
+            try {
+                if (localStream) localStream.getTracks().forEach(track => track.stop());
+                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                userCamera.srcObject = localStream;
+                userCamera.addEventListener('loadeddata', () => {
+                    const detectionCanvas = document.getElementById('detection-canvas');
+                    detectionCanvas.width = userCamera.videoWidth;
+                    detectionCanvas.height = userCamera.videoHeight;
+                    detectFrame();
+                });
+            } catch (err) {
+                console.error("Error accessing camera:", err);
+                bodyLanguageFeedback.innerHTML = `<p class="text-red-400">Could not access camera. Please check permissions.</p>`;
+            }
+        }
+        
+        function stopCamera() {
+            if (localStream) localStream.getTracks().forEach(track => track.stop());
+            userCamera.srcObject = null;
+            if (bodyLanguageInterval) clearInterval(bodyLanguageInterval);
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+             const detectionCanvas = document.getElementById('detection-canvas');
+            if(detectionCanvas) {
+                const ctx = detectionCanvas.getContext('2d');
+                ctx.clearRect(0, 0, detectionCanvas.width, detectionCanvas.height);
+            }
+            document.getElementById('multi-person-warning').classList.add('hidden');
+        }
+
+        startInterviewBtn.addEventListener('click', async () => {
+            const interviewType = typeSelect.value;
+            if (!model) {
+                companyValidationMsg.textContent = "AI model is still loading, please wait a moment.";
+                return;
+            }
+            const companyName = companySearchInput.value.trim();
+            if (!companyName) {
+                companyValidationMsg.textContent = "Please enter a company name.";
+                return;
+            }
+            startInterviewBtn.disabled = true;
+            startInterviewBtn.innerHTML = `<i data-lucide="loader-2" class="animate-spin"></i><span>Validating...</span>`;
+            lucide.createIcons();
+            companyValidationMsg.textContent = "";
+
+            const isValid = await validateCompany(companyName);
+            startInterviewBtn.disabled = false;
+            startInterviewBtn.innerHTML = `<i data-lucide="play-circle"></i><span>Start Interview</span>`;
+            lucide.createIcons();
+
+            if (isValid) {
+                sessionScores = []; sessionKeyTips = [];
+                interviewSetup.classList.add('hidden');
+                interviewSession.classList.remove('hidden');
+                
+                enterFullScreen();
+                isInterviewActive = true;
+                window.addEventListener('beforeunload', beforeUnloadHandler);
+
+                startCamera(); 
+                
+                if (interviewType === 'technical') {
+                    spokenInterviewUI.classList.add('hidden');
+                    spokenFeedbackContainer.classList.add('hidden');
+                    codingInterviewUI.classList.remove('hidden');
+                    getNewCodingQuestion();
+                } else {
+                    codingInterviewUI.classList.add('hidden');
+                    spokenInterviewUI.classList.remove('hidden');
+                    spokenFeedbackContainer.classList.remove('hidden');
+                    getNewSpokenQuestion();
+                }
+                bodyLanguageInterval = setInterval(analyzeBodyLanguage, 15000); 
+            } else {
+                companyValidationMsg.textContent = `"${companyName}" doesn't seem to be a valid company.`;
+            }
+        });
+        
+        function handleEndSession() {
+            isInterviewActive = false;
+            window.removeEventListener('beforeunload', beforeUnloadHandler);
+            exitFullScreen();
+
+             if(isRecording) {
+                isRecording = false;
+                recognition.stop();
+            }
+            stopCamera();
+            showSessionSummary("Interview");
+        }
+        endInterviewBtn.addEventListener('click', handleEndSession);
+        endCodingInterviewBtn.addEventListener('click', handleEndSession);
+
+        function showSessionSummary(sessionType) {
+            const modal = document.getElementById('session-summary-modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalSubtitle = document.getElementById('modal-subtitle');
+            const avgScoreEl = document.getElementById('modal-avg-score');
+            const keyTipsEl = document.getElementById('modal-key-tips');
+            
+            modalTitle.textContent = `${sessionType} Summary`;
+            const avgScore = sessionScores.length ? sessionScores.reduce((a, b) => a + b, 0) / sessionScores.length : 0;
+
+            if (sessionType === 'Quiz') {
+                avgScoreEl.textContent = `${sessionScores[0]}/${sessionScores[1]}`;
+                keyTipsEl.innerHTML = sessionKeyTips.length ? sessionKeyTips.map(tip => `<li>${tip}</li>`).join('') : '<li>No specific improvement areas identified. Great job!</li>';
+                modalSubtitle.textContent = `You got ${sessionScores[0]} out of ${sessionScores[1]} questions correct.`;
+            } else {
+                avgScoreEl.textContent = avgScore ? avgScore.toFixed(1) : "N/A";
+                keyTipsEl.innerHTML = sessionKeyTips.length ? [...new Set(sessionKeyTips)].map(tip => `<li>${tip.replace(/\*\*/g, '')}</li>`).join('') : '<li>No specific improvement tips were recorded.</li>';
+                modalSubtitle.textContent = "Great work! Here's how you performed in this session.";
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        document.getElementById('close-modal-btn').addEventListener('click', () => {
+            document.getElementById('session-summary-modal').classList.add('hidden');
+            resetInterviewState();
+        });
+        document.getElementById('modal-return-btn').addEventListener('click', () => {
+            document.getElementById('session-summary-modal').classList.add('hidden');
+            resetInterviewState();
+            window.location.hash = '#dashboard';
+        });
+        document.getElementById('modal-close-explicit-btn').addEventListener('click', () => {
+            document.getElementById('session-summary-modal').classList.add('hidden');
+            resetInterviewState();
+        });
+
+        function resetInterviewState() {
+            stopCamera();
+            interviewSetup.classList.remove('hidden');
+            interviewSession.classList.add('hidden');
+            
+            feedbackArea.innerHTML = `<div class="flex items-center justify-center h-full text-slate-500"><p>Your feedback will appear here.</p></div>`;
+            bodyLanguageFeedback.innerHTML = `<div class="flex items-center justify-center h-full"><p>Live analysis will appear here...</p></div>`;
+            questionText.classList.add('hidden');
+            questionLoader.style.display = 'flex';
+            
+            resetCodingUI();
+
+            resumeText = '';
+            resumeFileName.textContent = 'PDF up to 2MB';
+            resumeValidationMsg.textContent = '';
+            resumeUploadInput.value = '';
+        }
+        
+        startAnsweringBtn.addEventListener('click', () => {
+            if (isRecording) {
+                isRecording = false;
+                recognition.stop();
+                startAnsweringBtn.classList.replace('bg-red-600', 'bg-green-600');
+                startAnsweringBtn.innerHTML = `<i data-lucide="mic"></i><span>Start Answering</span>`;
+                recordingIndicator.classList.add('hidden');
+                analyzeAnswer(questionText.textContent, transcriptArea.textContent);
+            } else {
+                transcriptArea.textContent = '';
+                finalTranscript = '';
+                recognition.start();
+                isRecording = true;
+                startAnsweringBtn.classList.replace('bg-green-600', 'bg-red-600');
+                startAnsweringBtn.innerHTML = `<i data-lucide="stop-circle"></i><span>Stop Answering</span>`;
+                recordingIndicator.classList.remove('hidden');
+                feedbackArea.innerHTML = `<div class="flex items-center justify-center h-full text-slate-400"><i data-lucide="loader-2" class="animate-spin h-6 w-6"></i><span class="ml-3">Waiting for you to finish...</span></div>`;
+            }
+            lucide.createIcons();
+        });
+        
+        async function validateCompany(companyName) {
+            const prompt = `Is "${companyName}" a real company that plausibly hires for tech roles? Respond "YES" or "NO".`;
+            const response = await callGeminiAPI([{ text: prompt }]);
+            return response.text.trim().toUpperCase().includes("YES");
+        }
+
+        async function callGeminiAPI(parts, isJson = false) {
+            return window.callGeminiAPI(parts, isJson);
+        }
+
+        async function getNewSpokenQuestion() {
+            questionLoader.style.display = 'flex';
+            questionText.classList.add('hidden');
+            startAnsweringBtn.disabled = true;
+            const company = companySearchInput.value;
+            const role = document.getElementById('role-select').value;
+            const typeText = typeSelect.options[typeSelect.selectedIndex].text;
+            
+            let prompt = `As a hiring manager at ${company}, ask one challenging ${typeText} question of ${interviewDifficulty} difficulty for an ${role} role. `;
+            if(resumeText) prompt += `The candidate's resume contains: "${resumeText.substring(0, 1500)}". Tailor the question to their experience. `;
+            prompt += `Be direct, only provide the question.`
+
+            const result = await callGeminiAPI([{ text: prompt }]);
+            if (result.text) {
+                questionText.textContent = result.text;
+                questionLoader.style.display = 'none';
+                questionText.classList.remove('hidden');
+                startAnsweringBtn.disabled = false;
+            }
+        }
+
+        async function analyzeAnswer(question, answer) {
+            feedbackArea.innerHTML = `<div class="flex items-center justify-center h-full text-slate-400"><i data-lucide="bot" class="animate-pulse h-6 w-6"></i><span class="ml-3">AI is analyzing your response...</span></div>`;
+            lucide.createIcons();
+
+            const prompt = `You are a FAANG hiring manager. A candidate was asked: "${question}". Their spoken answer was: "${answer}". Provide feedback. Your response MUST be ONLY a raw JSON object with keys: "overall_score" (number 1-10), "summary" (string), "feedback_points" (array of strings with markdown).`;
+            
+            const result = await callGeminiAPI([{ text: prompt }], true);
+            if (result.json) displaySpokenFeedback(result.json);
+            else displaySpokenFeedback({ error: result.error, raw: result.text });
+        }
+        
+        async function analyzeBodyLanguage() {
+            if (!localStream || !userCamera.srcObject) return;
+            const canvas = document.createElement('canvas');
+            canvas.width = userCamera.videoWidth;
+            canvas.height = userCamera.videoHeight;
+            const context = canvas.getContext('2d');
+            context.drawImage(userCamera, 0, 0, canvas.width, canvas.height);
+            const dataUrl = canvas.toDataURL('image/jpeg');
+            const base64Data = dataUrl.split(',')[1];
+            const prompt = "Analyze this image of a person in a video interview. Provide brief, constructive feedback on body language (eye contact, expression, posture). Be encouraging. Respond in 2-3 short sentences.";
+            const parts = [ { text: prompt }, { inlineData: { mimeType: 'image/jpeg', data: base64Data } } ];
+            const result = await callGeminiAPI(parts);
+            if (result.text) {
+                 bodyLanguageFeedback.innerHTML = `<div class="p-3 bg-slate-900/50 rounded-lg animate-fadeIn"><p class="font-semibold text-primary text-sm">Real-time Tip:</p><p class="text-slate-300 text-sm">${result.text}</p></div>`;
+                 sessionKeyTips.push(result.text);
+            }
+        }
+
+        async function detectFrame() {
+            if (!model || !userCamera.srcObject || userCamera.paused || userCamera.ended) {
+                if (userCamera.srcObject) animationFrameId = requestAnimationFrame(detectFrame);
+                return;
+            }
+            const predictions = await model.detect(userCamera);
+            const detectionCanvas = document.getElementById('detection-canvas');
+            const multiPersonWarning = document.getElementById('multi-person-warning');
+            const ctx = detectionCanvas.getContext('2d');
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            const persons = predictions.filter(p => p.class === 'person');
+            multiPersonWarning.classList.toggle('hidden', persons.length <= 1);
+            persons.forEach(person => {
+                ctx.beginPath();
+                ctx.rect(...person.bbox);
+                ctx.lineWidth = 3;
+                ctx.strokeStyle = '#7c3aed';
+                ctx.stroke();
+            });
+            animationFrameId = requestAnimationFrame(detectFrame);
+        }
+
+        function displaySpokenFeedback(data) {
+             if(data.error){
+                feedbackArea.innerHTML = `<div class="text-red-400"><p><strong>Error:</strong> The AI returned an unexpected response.</p><button id="retry-feedback-btn" class="mt-4 bg-primary text-white font-semibold px-4 py-2 rounded-lg">Try Again</button><p class="text-xs text-slate-500 mt-2">Raw AI Output: ${data.raw}</p></div>`;
+                document.getElementById('retry-feedback-btn').addEventListener('click', () => analyzeAnswer(questionText.textContent, transcriptArea.textContent));
+                return;
+            }
+            sessionScores.push(data.overall_score);
+            const keyTip = data.feedback_points.find(p => p.toLowerCase().includes('weakness')) || data.feedback_points[0] || "Review your performance for improvement areas.";
+            sessionKeyTips.push(keyTip);
+            let feedbackListHTML = data.feedback_points.map(point => `<li class="p-3 bg-slate-900/50 rounded-md">${point.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</li>`).join('');
+            feedbackArea.innerHTML = `
+                <div class="mb-4"><h3 class="font-bold text-lg text-white">Overall Score: ${data.overall_score}/10</h3><div class="w-full bg-slate-700 rounded-full h-2.5 mt-2"><div class="bg-gradient-to-r from-purple-500 to-primary h-2.5 rounded-full" style="width: ${data.overall_score * 10}%"></div></div></div>
+                <div class="mb-4"><p class="text-sm text-slate-400">${data.summary}</p></div>
+                <h4 class="font-semibold text-slate-300 mb-2">Detailed Feedback:</h4><ul class="space-y-2 text-slate-300 text-sm">${feedbackListHTML}</ul>
+                <div class="mt-6 flex flex-col sm:flex-row gap-3">
+                    <button id="retry-question-btn" class="w-full bg-slate-700 text-white font-semibold py-3 rounded-lg hover:bg-slate-600 transition-colors">Try Again</button>
+                    <button id="next-spoken-question-btn" class="w-full bg-primary text-white font-semibold py-3 rounded-lg hover:bg-primary-hover transition-colors">Next Question</button>
+                </div>`;
+            lucide.createIcons();
+            document.getElementById('retry-question-btn').addEventListener('click', () => {
+                feedbackArea.innerHTML = `<div class="flex items-center justify-center h-full text-slate-500"><p>Your feedback will appear here after you answer.</p></div>`;
+                transcriptArea.textContent = ''; finalTranscript = ''; startAnsweringBtn.disabled = false;
+            });
+            document.getElementById('next-spoken-question-btn').addEventListener('click', () => {
+                transcriptArea.textContent = ''; feedbackArea.innerHTML = `<div class="flex items-center justify-center h-full text-slate-500"><p>Your feedback will appear here.</p></div>`;
+                getNewSpokenQuestion();
+            });
+        }
+        
+        const codingProblemTitleEl = document.getElementById('coding-problem-title');
+        const codingProblemDescEl = document.getElementById('coding-problem-description');
+        const codeEditorEl = document.getElementById('code-editor');
+        const submitCodeBtn = document.getElementById('submit-code-btn');
+        const nextCodingQuestionBtn = document.getElementById('next-coding-question-btn');
+        
+        const tabFeedback = document.getElementById('tab-feedback');
+        const tabAdvanced = document.getElementById('tab-advanced');
+        const aiFeedbackPanel = document.getElementById('ai-feedback');
+        const advancedToolsPanel = document.getElementById('advanced-tools');
+        const feedbackPlaceholder = document.getElementById('feedback-placeholder');
+        const feedbackContent = document.getElementById('feedback-content');
+        
+        const complexityBtn = document.getElementById('complexity-btn');
+        const optimizeBtn = document.getElementById('optimize-btn');
+        const testCasesBtn = document.getElementById('test-cases-btn');
+        const advancedAnalysisContent = document.getElementById('advanced-analysis-content');
+        
+        let lastCorrectCode = '';
+        let currentProblemDesc = '';
+
+        function switchTab(tab) {
+            if (tab === 'feedback') {
+                tabFeedback.classList.add('border-indigo-500', 'text-white');
+                tabFeedback.classList.remove('border-transparent', 'text-slate-400');
+                tabAdvanced.classList.add('border-transparent', 'text-slate-400');
+                tabAdvanced.classList.remove('border-indigo-500', 'text-white');
+                aiFeedbackPanel.classList.remove('hidden');
+                advancedToolsPanel.classList.add('hidden');
+            } else {
+                tabAdvanced.classList.add('border-indigo-500', 'text-white');
+                tabAdvanced.classList.remove('border-transparent', 'text-slate-400');
+                tabFeedback.classList.add('border-transparent', 'text-slate-400');
+                tabFeedback.classList.remove('border-indigo-500', 'text-white');
+                advancedToolsPanel.classList.remove('hidden');
+                aiFeedbackPanel.classList.add('hidden');
+            }
+        }
+        tabFeedback.addEventListener('click', () => switchTab('feedback'));
+        tabAdvanced.addEventListener('click', () => switchTab('advanced'));
+        
+        async function getNewCodingQuestion() {
+            resetCodingUI();
+            const company = companySearchInput.value;
+            const role = document.getElementById('role-select').value;
+            const language = "Python"; 
+            const prompt = `Generate one Data Structures & Algorithms coding problem of ${interviewDifficulty} difficulty for an ${role} interview at ${company} using ${language}. Response must be ONLY a raw JSON object with keys: "title", "description" (in markdown), and "boilerplate" (code stub).`;
+            const result = await callGeminiAPI([{ text: prompt }], true);
+            if (result.json) {
+                const problem = result.json;
+                currentProblemDesc = problem.description;
+                codingProblemTitleEl.textContent = problem.title;
+                const descHtml = problem.description.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/`(.*?)`/g, '<code class="bg-slate-700 text-amber-300 px-1 rounded">$1</code>').replace(/\n/g, '<br>');
+                codingProblemDescEl.innerHTML = `<h3 class="dynamic-text text-xl font-bold mb-4">Problem Statement</h3><div class="space-y-3 text-gray-300">${descHtml}</div>`;
+                codeEditorEl.value = problem.boilerplate;
+            } else {
+                codingProblemDescEl.innerHTML = `<p class="text-red-400">Failed to load a new problem. Please try again.</p>`;
+            }
+        }
+        
+        nextCodingQuestionBtn.addEventListener('click', getNewCodingQuestion);
+        
+        submitCodeBtn.addEventListener('click', async () => {
+            const userCode = codeEditorEl.value;
+            if (!userCode.trim()) return;
+            const submitBtnText = document.getElementById('submit-btn-text');
+            const submitSpinner = document.getElementById('submit-spinner');
+            submitBtnText.classList.add('hidden');
+            submitSpinner.classList.remove('hidden');
+            submitCodeBtn.disabled = true;
+            switchTab('feedback');
+
+            feedbackPlaceholder.classList.add('hidden');
+            feedbackContent.classList.remove('hidden');
+            feedbackContent.innerHTML = `<div class="flex items-center justify-center h-full"><div class="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spinner"></div></div>`;
+            
+            const language = "Python"; 
+            const prompt = `Act as an expert code reviewer. A user is solving in ${language}: "${currentProblemDesc}".
+            User's code:\n\`\`\`${language.toLowerCase()}\n${userCode}\n\`\`\`
+            Analyze the code. Your response MUST be ONLY a raw JSON object with keys: "isCorrect" (boolean), "feedback" (Markdown string), "correctCode" (string), and "overall_score" (number 1-10).`;
+            const result = await callGeminiAPI([{ text: prompt }], true);
+            if(result.json) {
+                 displayCodingFeedback(result.json);
+                if (result.json.isCorrect) {
+                    lastCorrectCode = userCode;
+                    complexityBtn.disabled = false;
+                    optimizeBtn.disabled = false;
+                } else {
+                    lastCorrectCode = '';
+                    complexityBtn.disabled = true;
+                    optimizeBtn.disabled = true;
+                }
+            } else {
+                feedbackContent.innerHTML = `<div class="text-red-400"><p><strong>Analysis Failed:</strong> Could not get feedback from the AI. Please try again.</p><p class="text-sm mt-1">${result.error}</p></div>`;
+            }
+
+            submitBtnText.classList.remove('hidden');
+            submitSpinner.classList.add('hidden');
+            submitCodeBtn.disabled = false;
+        });
+        
+        function displayCodingFeedback(result) {
+            sessionScores.push(result.overall_score);
+            sessionKeyTips.push(result.feedback);
+            const correctnessHTML = result.isCorrect 
+                ? `<div class="flex items-center mb-4"><span class="w-3 h-3 bg-green-500 rounded-full mr-2"></span><p class="text-green-400 font-bold text-lg">Correct Solution! (Score: ${result.overall_score}/10)</p></div>`
+                : `<div class="flex items-center mb-4"><span class="w-3 h-3 bg-yellow-400 rounded-full mr-2"></span><p class="text-yellow-300 font-bold text-lg">Needs Improvement (Score: ${result.overall_score}/10)</p></div>`;
+            const feedbackHTML = `<div><h4 class="font-bold text-slate-300 mb-2">Feedback:</h4><div class="text-gray-300 space-y-2">${result.feedback.replace(/\n/g, '<br>')}</div></div>`;
+            const copyButtonHTML = `<div class="flex justify-between items-center mt-4"><h4 class="font-bold text-slate-300">Suggested Solution:</h4><button onclick="copyCode(this)" class="text-sm bg-slate-700 px-2 py-1 rounded-md hover:bg-slate-600">Copy Code</button></div>`;
+            const correctCodeHTML = `<pre class="bg-[#1E1E1E] p-3 mt-2 rounded-lg overflow-x-auto compiler-scrollbar"><code class="code-font text-sm">${result.correctCode.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</code></pre>`;
+            feedbackContent.innerHTML = `${correctnessHTML}${feedbackHTML}${copyButtonHTML}${correctCodeHTML}`;
+        }
+        
+        function resetCodingUI() {
+            codingProblemTitleEl.textContent = 'Loading Problem...';
+            codingProblemDescEl.innerHTML = '<div class="flex items-center justify-center h-full"><i data-lucide="loader-2" class="animate-spin h-8 w-8 text-primary"></i></div>';
+            codeEditorEl.value = '';
+            feedbackPlaceholder.classList.remove('hidden');
+            feedbackContent.classList.add('hidden');
+            advancedAnalysisContent.innerHTML = '';
+            lastCorrectCode = '';
+            complexityBtn.disabled = true;
+            optimizeBtn.disabled = true;
+            switchTab('feedback');
+            lucide.createIcons();
+        }
+
+        async function handleAdvancedTool(button, prompt, displayFn) {
+            const originalText = button.textContent;
+            button.innerHTML = `<div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spinner"></div>`;
+            button.disabled = true;
+            switchTab('advanced');
+            advancedAnalysisContent.innerHTML = `<div class="flex items-center justify-center h-full"><div class="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spinner"></div></div>`;
+            
+            const result = await callGeminiAPI([{ text: prompt }], true);
+            if(result.json) displayFn(result.json);
+            else advancedAnalysisContent.innerHTML = `<div class="text-red-400"><p><strong>Analysis Failed:</strong> ${result.error}</p></div>`;
+            
+            button.innerHTML = originalText;
+            if(lastCorrectCode) button.disabled = false;
+        }
+
+        complexityBtn.addEventListener('click', () => {
+            const language = "Python";
+            const prompt = `Analyze the Time and Space Complexity (Big O) of this ${language} code solving "${currentProblemDesc}": \`\`\`${language.toLowerCase()}\n${lastCorrectCode}\n\`\`\` Response MUST be ONLY raw JSON with keys: "timeComplexity" (string), "spaceComplexity" (string), and "explanation" (Markdown string).`;
+            handleAdvancedTool(complexityBtn, prompt, displayComplexity);
+        });
+
+        optimizeBtn.addEventListener('click', () => {
+            const language = "Python";
+            const prompt = `Optimize this ${language} code for the problem: "${currentProblemDesc}": \`\`\`${language.toLowerCase()}\n${lastCorrectCode}\n\`\`\` Response MUST be ONLY raw JSON with keys: 'optimizedCode' and 'explanation' (Markdown string).`;
+            handleAdvancedTool(optimizeBtn, prompt, displayOptimization);
+        });
+
+        testCasesBtn.addEventListener('click', () => {
+            const prompt = `You are a QA engineer. For the problem: "${currentProblemDesc}", generate 5-7 critical test cases, including edge cases. Response MUST be ONLY raw JSON with one key: "testCases", an array of objects, each with "input" and "expectedOutput" keys.`;
+            handleAdvancedTool(testCasesBtn, prompt, displayTestCases);
+        });
+
+        function displayComplexity(data) {
+            advancedAnalysisContent.innerHTML = `
+                <h4 class="text-lg font-bold text-indigo-400 mb-2">Complexity Analysis</h4>
+                <p><strong class="text-slate-400">Time Complexity:</strong> <code class="code-font bg-slate-700 text-amber-300 px-1.5 py-0.5 rounded">${data.timeComplexity}</code></p>
+                <p><strong class="text-slate-400">Space Complexity:</strong> <code class="code-font bg-slate-700 text-amber-300 px-1.5 py-0.5 rounded">${data.spaceComplexity}</code></p>
+                <div class="mt-3 pt-3 border-t border-slate-700 text-gray-300 space-y-2">${data.explanation.replace(/\n/g, '<br>')}</div>
+            `;
+        }
+
+        function displayOptimization(data) {
+            const copyButtonHTML = `<div class="flex justify-between items-center mb-2"><h4 class="text-lg font-bold text-indigo-400">Optimized Code</h4><button onclick="copyCode(this)" class="text-sm bg-slate-700 px-2 py-1 rounded-md hover:bg-slate-600">Copy Code</button></div>`;
+            advancedAnalysisContent.innerHTML = `
+                ${copyButtonHTML}
+                <pre class="bg-[#1E1E1E] p-3 rounded-lg overflow-x-auto compiler-scrollbar"><code class="code-font text-sm">${data.optimizedCode.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</code></pre>
+                <div class="mt-3 pt-3 border-t border-slate-700 text-gray-300 space-y-2">${data.explanation.replace(/\n/g, '<br>')}</div>
+            `;
+        }
+
+        function displayTestCases(data) {
+             const testCasesHTML = data.testCases.map(tc => `
+                <div class="p-3 bg-slate-800 rounded-lg">
+                    <p class="text-slate-400 text-sm">Input:</p>
+                    <pre class="code-font text-white bg-slate-900 p-2 rounded">${tc.input}</pre>
+                    <p class="text-slate-400 text-sm mt-2">Expected Output:</p>
+                    <pre class="code-font text-white bg-slate-900 p-2 rounded">${tc.expectedOutput}</pre>
+                </div>
+            `).join('');
+            advancedAnalysisContent.innerHTML = `<h4 class="text-lg font-bold text-indigo-400 mb-2">Generated Test Cases</h4><div class="space-y-3">${testCasesHTML}</div>`;
+        }
+        
+        window.copyCode = function(button) {
+            const pre = button.parentElement.nextElementSibling;
+            const code = pre.querySelector('code').innerText;
+            navigator.clipboard.writeText(code).then(() => {
+                const originalText = button.textContent;
+                button.textContent = 'Copied!';
+                setTimeout(() => { button.textContent = originalText; }, 2000);
+            });
+        }
+        
+        // Full Screen and Exit Warning Logic
+        const fullscreenWarningModal = document.getElementById('fullscreen-warning-modal');
+        const reEnterFullscreenBtn = document.getElementById('re-enter-fullscreen-btn');
+
+        function enterFullScreen() {
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen();
+            } else if (document.documentElement.webkitRequestFullscreen) { /* Safari */
+                document.documentElement.webkitRequestFullscreen();
+            }
+        }
+
+        function exitFullScreen() {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) { /* Safari */
+                document.webkitExitFullscreen();
+            }
+        }
+
+        document.addEventListener('fullscreenchange', () => {
+          if (!document.fullscreenElement && isInterviewActive) {
+            fullscreenWarningModal.classList.remove('hidden');
+          }
+        });
+
+        reEnterFullscreenBtn.addEventListener('click', () => {
+            fullscreenWarningModal.classList.add('hidden');
+            enterFullScreen();
+        });
+        
+        function beforeUnloadHandler(e) {
+          if (isInterviewActive) {
+            e.preventDefault();
+            e.returnValue = '';
+            return '';
+          }
+        }
+        
+        const allCompanies = [
+            { name: 'Google', logo: 'https://cdn.worldvectorlogo.com/logos/google-icon.svg'}, { name: 'Microsoft', logo: 'https://cdn.worldvectorlogo.com/logos/microsoft-5.svg'},
+            { name: 'Amazon', logo: 'https://cdn.worldvectorlogo.com/logos/amazon-icon-1.svg'}, { name: 'Meta', logo: 'https://cdn.worldvectorlogo.com/logos/meta-1.svg'},
+            { name: 'Apple', logo: 'https://cdn.worldvectorlogo.com/logos/apple-13.svg'}, { name: 'Netflix', logo: 'https://cdn.worldvectorlogo.com/logos/netflix-4.svg'},
+            { name: 'Nvidia', logo: 'https://cdn.worldvectorlogo.com/logos/nvidia.svg'}, { name: 'Adobe', logo: 'https://cdn.worldvectorlogo.com/logos/adobe-2.svg'},
+            { name: 'Tesla', logo: 'https://cdn.worldvectorlogo.com/logos/tesla-motors.svg'}, { name: 'Goldman Sachs', logo: 'https://cdn.worldvectorlogo.com/logos/goldman-sachs.svg'},
+            { name: 'Uber', logo: 'https://cdn.worldvectorlogo.com/logos/uber-2.svg' }, { name: 'Airbnb', logo: 'https://cdn.worldvectorlogo.com/logos/airbnb.svg' },
+            { name: 'Salesforce', logo: 'https://cdn.worldvectorlogo.com/logos/salesforce-2.svg' }, { name: 'Atlassian', logo: 'https://cdn.worldvectorlogo.com/logos/atlassian.svg' },
+            { name: 'Spotify', logo: 'https://cdn.worldvectorlogo.com/logos/spotify-1.svg' }, { name: 'Stripe', logo: 'https://cdn.worldvectorlogo.com/logos/stripe-4.svg' },
+            { name: 'DE Shaw', logo: 'https://cdn.worldvectorlogo.com/logos/d-e-shaw-co.svg' }, { name: 'Jane Street', logo: 'https://www.janestreet.com/assets/logo.svg' },
+            { name: 'Morgan Stanley', logo: 'https://cdn.worldvectorlogo.com/logos/morgan-stanley-2.svg' }, { name: 'J.P. Morgan', logo: 'https://cdn.worldvectorlogo.com/logos/jp-morgan-chase-co-1.svg' },
+            { name: 'Palantir', logo: 'https://cdn.worldvectorlogo.com/logos/palantir-technologies-1.svg'}, { name: 'Oracle', logo: 'https://cdn.worldvectorlogo.com/logos/oracle-6.svg'},
+            { name: 'Intel', logo: 'https://cdn.worldvectorlogo.com/logos/intel-7.svg'}, { name: 'IBM', logo: 'https://cdn.worldvectorlogo.com/logos/ibm-2.svg'},
+            { name: 'Cisco', logo: 'https://cdn.worldvectorlogo.com/logos/cisco-2.svg'}, { name: 'Accenture', logo: 'https://cdn.worldvectorlogo.com/logos/accenture-6.svg'},
+            { name: 'McKinsey & Company', logo: 'https://cdn.worldvectorlogo.com/logos/mckinsey-company-1.svg'}, { name: 'BCG', logo: 'https://cdn.worldvectorlogo.com/logos/boston-consulting-group.svg'},
+            { name: 'Citadel', logo: 'https://cdn.worldvectorlogo.com/logos/citadel-securities.svg'}, { name: 'Qualcomm', logo: 'https://cdn.worldvectorlogo.com/logos/qualcomm.svg'},
+            { name: 'Deloitte', logo: 'https://cdn.worldvectorlogo.com/logos/deloitte-2.svg'}, { name: 'Bain & Company', logo: 'https://cdn.worldvectorlogo.com/logos/bain-company.svg'}
+        ];
+
+        const companyGrid = document.getElementById('company-grid');
+        const roadmapGrid = document.getElementById('roadmap-grid');
+        
+        function populateCompanyGrids() {
+            if(companyGrid) companyGrid.innerHTML = '';
+            if(roadmapGrid) roadmapGrid.innerHTML = '';
+            const companiesWithWhiteBg = ['Amazon', 'Jane Street', 'McKinsey & Company', 'BCG', 'Bain & Company', 'Citadel', 'Deloitte', 'Accenture'];
+            allCompanies.forEach(company => {
+                const companyId = company.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+                const needsBg = companiesWithWhiteBg.includes(company.name);
+                const roadmapBgClass = needsBg ? 'bg-white rounded-full p-1' : '';
+                const roadmapCardHTML = `
+                    <a href="#roadmap-detail-${companyId}" class="glass-card p-6 flex items-center space-x-4">
+                        <img src="${company.logo}" class="w-12 h-12 ${roadmapBgClass}" onerror="this.style.display='none'">
+                        <div><h3 class="text-xl font-bold text-white">${company.name}</h3></div>
+                    </a>`;
+                if(roadmapGrid) roadmapGrid.innerHTML += roadmapCardHTML;
+                const dashboardBgClass = needsBg ? 'bg-white rounded-full p-0.5' : '';
+                const dashboardIconHTML = `
+                    <button class="company-icon-btn" data-company="${company.name}">
+                        <img src="${company.logo}" alt="${company.name}" class="w-10 h-10 transition-transform duration-300 hover:scale-110 ${dashboardBgClass}" onerror="this.style.display='none'">
+                    </button>`;
+                if(companyGrid) companyGrid.innerHTML += dashboardIconHTML;
+            });
+            document.querySelectorAll('.company-icon-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.getElementById('company-insight-search').value = btn.dataset.company;
+                    document.getElementById('find-insights-btn').click();
+                });
+            });
+        }
+        populateCompanyGrids();
+
+        const findInsightsBtn = document.getElementById('find-insights-btn');
+        const companyInsightSearch = document.getElementById('company-insight-search');
+        const companyInfoResults = document.getElementById('company-info-results');
+        
+        companyGrid.addEventListener('click', (e) => {
+            const btn = e.target.closest('.company-icon-btn');
+            if (btn) {
+                companyGrid.querySelectorAll('.company-icon-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const companyName = btn.dataset.company;
+                companyInsightSearch.value = companyName;
+                getCompanyInsights(companyName);
+            }
+        });
+
+        findInsightsBtn.addEventListener('click', () => getCompanyInsights());
+        companyInsightSearch.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') getCompanyInsights();
+        });
+
+        async function getCompanyInsights(companyName) {
+            const companyNameToSearch = typeof companyName === 'string' ? companyName : companyInsightSearch.value.trim();
+            if (!companyNameToSearch) {
+                (companyInfoResults || document.getElementById('roadmap-search-results')).innerHTML = `<p class="text-red-400">Please enter a company name.</p>`;
+                return;
+            }
+            const targetResultsDiv = window.location.hash === '#roadmaps' ? document.getElementById('roadmap-search-results') : companyInfoResults;
+            targetResultsDiv.innerHTML = `<div class="flex items-center justify-center text-slate-400"><i data-lucide="loader-2" class="animate-spin mr-2"></i>Fetching AI insights for ${companyNameToSearch}...</div>`;
+            lucide.createIcons();
+            const prompt = `Act as a senior career coach for tech students. Provide a concise summary for a student preparing for an interview at ${companyNameToSearch}. The summary should be a valid JSON object with the following keys: "company_name", "known_for", "interview_focus", "common_roles" (an array of strings), and "key_tip". If the company is not real, return a JSON object with an "error" key.`;
+            const result = await callGeminiAPI([{ text: prompt }], true);
+            if(result.json){
+                const data = result.json;
+                if (data.error) {
+                    targetResultsDiv.innerHTML = `<p class="text-red-400">Could not find information for "${companyNameToSearch}". Please check the name.</p>`;
+                } else {
+                    const companyId = data.company_name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+                    targetResultsDiv.innerHTML = `
+                        <div class="bg-slate-900/50 p-6 rounded-lg">
+                           <h3 class="text-2xl font-bold text-white">${data.company_name}</h3>
+                           <p class="text-sm text-slate-400"><strong class="text-slate-300">Known For:</strong> ${data.known_for}</p>
+                           <p class="text-sm text-slate-400 mt-2"><strong class="text-slate-300">Interview Focus:</strong> ${data.interview_focus}</p>
+                           <p class="text-sm text-slate-400 mt-2"><strong class="text-slate-300">Common Roles:</strong> ${data.common_roles.join(', ')}</p>
+                           <div class="mt-4 bg-primary/10 p-3 rounded-lg border border-primary/30">
+                            <p class="text-sm text-primary/80"><strong class="text-primary/90">Key Tip:</strong> ${data.key_tip}</p>
+                           </div>
+                           <a href="#roadmap-detail-${companyId}" class="mt-4 inline-block bg-primary text-white font-semibold px-4 py-2 rounded-lg text-sm hover:bg-primary-hover">View Full Roadmap →</a>
+                        </div>`;
+                }
+            } else {
+                 targetResultsDiv.innerHTML = `<p class="text-red-400">An error occurred while fetching AI insights. Please try again.</p>`;
+            }
+        }
+
+        document.getElementById('back-to-roadmaps').addEventListener('click', () => { window.location.hash = '#dashboard'; });
+        const roadmapFindBtn = document.getElementById('roadmap-find-btn');
+        const roadmapSearchInput = document.getElementById('roadmap-search');
+        roadmapFindBtn.addEventListener('click', () => getCompanyInsights(roadmapSearchInput.value));
+        roadmapSearchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') getCompanyInsights(roadmapSearchInput.value);
+        });
+
+        async function showRoadmapDetail(companyId) {
+            const companyName = companyId.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+            const company = allCompanies.find(c => c.name.toLowerCase() === companyName.toLowerCase().split('(')[0].trim());
+            const companiesWithWhiteBg = ['Amazon', 'Jane Street', 'McKinsey & Company', 'BCG', 'Bain & Company', 'Citadel', 'Deloitte', 'Accenture'];
+            const needsBg = company && companiesWithWhiteBg.includes(company.name);
+            const bgClass = needsBg ? 'bg-white rounded-full p-2' : '';
+            const detailContent = document.getElementById('roadmap-detail-content');
+            detailContent.innerHTML = `
+                <div class="flex flex-col sm:flex-row items-center mb-8">
+                    ${company ? `<img src="${company.logo}" class="w-20 h-20 mb-4 sm:mb-0 sm:mr-6 ${bgClass}" onerror="this.style.display='none'">` : ''}
+                    <div><h1 class="text-3xl sm:text-5xl font-black text-white text-center sm:text-left">${companyName}</h1></div>
+                </div>
+                <div class="space-y-12">
+                     <div id="strategy-section"><h2 class="text-2xl sm:text-3xl font-bold text-white mb-4">Overall Prep Strategy</h2><div class="glass-card p-6 min-h-[150px] flex items-center justify-center"><i data-lucide="loader-2" class="animate-spin h-8 w-8 text-primary"></i></div></div>
+                     <div id="dsa-section"><h2 class="text-2xl sm:text-3xl font-bold text-white mb-4">Top DSA Questions</h2><div class="glass-card p-6 min-h-[200px] flex items-center justify-center"><i data-lucide="loader-2" class="animate-spin h-8 w-8 text-primary"></i></div></div>
+                     <div id="platforms-section"><h2 class="text-2xl sm:text-3xl font-bold text-white mb-4">Recommended Platform Practice</h2><div class="glass-card p-6 min-h-[200px] flex items-center justify-center"><i data-lucide="loader-2" class="animate-spin h-8 w-8 text-primary"></i></div></div>
+                </div>`;
+            lucide.createIcons();
+            fetchOverallStrategy(companyName);
+            fetchDsaQuestions(companyName);
+            fetchPlatforms(companyName);
+        }
+
+        async function fetchOverallStrategy(companyName) {
+            const prompt = `As a senior career coach, provide a concise overall preparation strategy for a software engineer interview at ${companyName}. Focus on non-technical aspects like behavioral questions (mentioning their core values if known), system design approach, and any specific cultural fit points. Respond with a valid JSON object with one key: "strategy_points" (an array of strings).`;
+            const result = await callGeminiAPI([{ text: prompt }], true);
+            const section = document.querySelector('#strategy-section .glass-card');
+            if(result.json) {
+                let content = '<ul class="space-y-3 list-disc list-inside text-slate-300">';
+                result.json.strategy_points.forEach(point => { content += `<li>${point}</li>`; });
+                section.innerHTML = content + '</ul>';
+            } else { section.innerHTML = `<p class="text-red-500">Could not load preparation strategy.</p>`; }
+        }
+        
+        async function fetchDsaQuestions(companyName) {
+            const prompt = `List top 5 DSA topics and one example question each for a Software Engineer at ${companyName}. Respond with a JSON array of objects with "topic" and "question" keys.`;
+            const result = await callGeminiAPI([{ text: prompt }], true);
+            const section = document.querySelector('#dsa-section .glass-card');
+            if(result.json) {
+                let content = '<div class="space-y-4">';
+                result.json.forEach(item => content += `<div class="p-4 bg-slate-900/50 rounded-lg"><h4 class="font-semibold text-primary">${item.topic}</h4><p class="text-slate-300">${item.question}</p></div>`);
+                section.innerHTML = content + '</div>';
+            } else { section.innerHTML = `<p class="text-red-500">Could not load DSA questions.</p>`; }
+        }
+
+        async function fetchPlatforms(companyName) {
+            const prompt = `Act as an expert FAANG interview coach. For a Software Engineer interview at ${companyName}, recommend 2 coding platforms like LeetCode or HackerRank. For each platform, provide a list of 3 highly relevant practice problems often asked by this company, with direct URLs to each problem. Also provide a brief strategy on how to use the platform. Respond with a valid JSON array of objects. Each object must have these keys: "platform_name", "strategy", and "recommended_problems" (an array of objects, where each object has "name" and "url" keys).`;
+            const result = await callGeminiAPI([{ text: prompt }], true);
+            const section = document.querySelector('#platforms-section .glass-card');
+            if(result.json){
+                let content = '<div class="space-y-6">';
+                result.json.forEach(item => {
+                    content += `
+                        <div class="p-4 bg-slate-900/50 rounded-lg">
+                            <h3 class="text-xl font-bold text-white">${item.platform_name}</h3>
+                            <p class="text-sm text-slate-400 mt-1 mb-3">${item.strategy}</p>
+                            <h4 class="font-semibold text-slate-300 mb-2">Recommended Problems:</h4>
+                            <ul class="list-disc list-inside text-slate-400 text-sm space-y-1">
+                                ${item.recommended_problems.map(problem => `<li><a href="${problem.url}" target="_blank" class="text-indigo-400 hover:underline">${problem.name}</a></li>`).join('')}
+                            </ul>
+                        </div>`;
+                });
+                section.innerHTML = content + '</div>';
+            } else { section.innerHTML = `<p class="text-red-500">Could not load platform recommendations.</p>`; }
+        }
+
+        const startQuizBtn = document.getElementById('start-quiz-btn');
+        const quizSetup = document.getElementById('quiz-setup');
+        const quizSession = document.getElementById('quiz-session');
+        const quizLoader = document.getElementById('quiz-loader');
+        const quizContent = document.getElementById('quiz-content');
+        const questionCounter = document.getElementById('question-counter');
+        const quizProgressBar = document.getElementById('quiz-progress-bar');
+        const quizQuestionText = document.getElementById('quiz-question-text');
+        const quizOptionsContainer = document.getElementById('quiz-options-container');
+        const nextQuizQuestionBtn = document.getElementById('next-quiz-question-btn');
+        const endQuizBtn = document.getElementById('end-quiz-btn');
+
+        let quizQuestions = [];
+        let currentQuestionIndex = 0;
+        let userAnswers = [];
+
+        startQuizBtn.addEventListener('click', async () => {
+            quizSetup.classList.add('hidden');
+            quizSession.classList.remove('hidden');
+            quizLoader.classList.remove('hidden');
+            quizContent.classList.add('hidden');
+            const lang = document.getElementById('quiz-language-select').value;
+            const diff = document.getElementById('quiz-difficulty-select').value;
+            const prompt = `Generate 20 multiple-choice questions for a technical quiz on ${lang} at ${diff} difficulty. The response must be ONLY a raw JSON array of objects. Each object must have keys: "question", "options" (an array of 4 strings), and "correctAnswer" (a string matching one of the options).`;
+            const result = await callGeminiAPI([{ text: prompt }], true);
+            if(result.json) {
+                quizQuestions = result.json;
+                startQuizSession();
+            } else {
+                quizSession.innerHTML = `<p class="text-red-400">Failed to generate quiz. Please try again. Error: ${result.error}</p>`;
+            }
+        });
+
+        function startQuizSession() {
+            currentQuestionIndex = 0;
+            userAnswers = [];
+            quizLoader.classList.add('hidden');
+            quizContent.classList.remove('hidden');
+            displayQuizQuestion();
+        }
+
+        function displayQuizQuestion() {
+            const question = quizQuestions[currentQuestionIndex];
+            questionCounter.textContent = `Question ${currentQuestionIndex + 1}/${quizQuestions.length}`;
+            quizProgressBar.style.width = `${((currentQuestionIndex + 1) / quizQuestions.length) * 100}%`;
+            quizQuestionText.textContent = question.question;
+            quizOptionsContainer.innerHTML = '';
+            question.options.forEach(option => {
+                const optionBtn = document.createElement('button');
+                optionBtn.className = 'quiz-option w-full text-left p-4 bg-slate-900/50 rounded-lg border-2 border-slate-700 hover:border-primary transition-colors';
+                optionBtn.textContent = option;
+                optionBtn.onclick = () => selectQuizOption(optionBtn, option);
+                quizOptionsContainer.appendChild(optionBtn);
+            });
+            nextQuizQuestionBtn.disabled = true;
+        }
+
+        function selectQuizOption(btn, option) {
+            document.querySelectorAll('.quiz-option').forEach(b => {
+                b.classList.remove('selected');
+                b.disabled = true;
+            });
+            btn.classList.add('selected');
+            userAnswers[currentQuestionIndex] = option;
+            nextQuizQuestionBtn.disabled = false;
+        }
+        
+        nextQuizQuestionBtn.addEventListener('click', () => {
+            if (currentQuestionIndex < quizQuestions.length - 1) {
+                currentQuestionIndex++;
+                displayQuizQuestion();
+            } else {
+                evaluateQuiz();
+            }
+        });
+
+        endQuizBtn.addEventListener('click', () => {
+             evaluateQuiz();
+        });
+
+        async function evaluateQuiz() {
+            quizContent.innerHTML = `<div class="text-center"><i data-lucide="loader-2" class="animate-spin h-8 w-8 text-primary mx-auto"></i><p class="mt-4 text-slate-400">Evaluating your answers...</p></div>`;
+            lucide.createIcons();
+            const prompt = `As an expert tutor, analyze my performance on this quiz. Here is the quiz data with my answers: ${JSON.stringify({questions: quizQuestions, answers: userAnswers})}. Provide a valid JSON response with: "score" (number), "total" (number), "weakTopics" (array of strings based on incorrect answers), and "summaryFeedback" (a concise, encouraging summary of performance).`;
+            const result = await callGeminiAPI([{ text: prompt }], true);
+            if (result.json) {
+                sessionScores = [result.json.score, result.json.total];
+                sessionKeyTips = [result.json.summaryFeedback, ...result.json.weakTopics.map(t => `Focus on improving your understanding of: ${t}`)];
+                quizSetup.classList.remove('hidden');
+                quizSession.classList.add('hidden');
+                quizContent.innerHTML = ''; // Reset content
+                showSessionSummary('Quiz');
+            } else {
+                 quizSession.innerHTML = `<p class="text-red-400">Failed to evaluate quiz. Please try again. Error: ${result.error}</p>`;
+            }
+        }
+        
+        const c1Time = new Date().getTime() + 1000 * 60 * 60 * 28 + 1000 * 60 * 32;
+        const c2Time = new Date().getTime() + 1000 * 60 * 60 * 80 + 1000 * 60 * 15;
+        const deviathonTime = new Date().getTime() + 1000 * 60 * 60 * 30;
+        startCountdown('countdown1', c1Time);
+        startCountdown('countdown2', c2Time);
+        startCountdown('countdown3', c1Time);
+        startCountdown('countdown4', c2Time);
+        startCountdown('countdown5', deviathonTime);
+        startCountdown('countdown-deviathon', deviathonTime);
+
+    });
+    </script>
+</body>
+</html>
+

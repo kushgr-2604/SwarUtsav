@@ -1,0 +1,14 @@
+{
+  "name": "gla-placement-prep-hub",
+  "version": "1.0.0",
+  "private": true,
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "ai": "^7.0.177"
+  }
+}

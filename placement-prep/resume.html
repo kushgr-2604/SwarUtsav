@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Resume Architect - GLA Placement Prep Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="config.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    keyframes: {
+                        spinner: { '0%': { transform: 'rotate(0deg)' }, '100%': { transform: 'rotate(360deg)' } },
+                        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+                        slideIn: { '0%': { transform: 'translateY(20px)', opacity: '0' }, '100%': { transform: 'translateY(0)', opacity: '1' } }
+                    },
+                    animation: {
+                        'spinner': 'spinner 1s linear infinite',
+                        'fadeIn': 'fadeIn 0.5s ease-in-out',
+                        'slideIn': 'slideIn 0.5s ease-in-out forwards'
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@400;600;700&family=Lora:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            --bg-day: url('https://images.shiksha.com/mediadata/images/articles/1663312168phpn90Wh7.jpeg');
+            --bg-night: url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgzt2wpPoqJ2B_0kB4yAEwR2qKbJ132T5adXIPPN-SHRe3vXt1LNn8U-Zi636Ig4rfA00hCYN9ed7E4fp0J_GZMxcgTwYud7s-kQ7B7yHbLeVOzbpElPr6jfeAkzF2uxaHIofwDYFXeP3-oXXwdYBly8TOyb28EmjAG8TzZstGlkeT0eJERVUCkS7iN8Is/s1600/Gemini_Generated_Image_s4b9vos4b9vos4b9%20(1).png');
+            background-image: var(--bg-day);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            transition: background-image 0.5s ease-in-out;
+        }
+        body.night-mode { background-image: var(--bg-night); }
+        .dynamic-text { font-family: 'Poppins', sans-serif; }
+        
+        /* Shared Resume Styles */
+        .resume-preview { --theme-color: #6366f1; }
+        
+        /* Template-Specific Styles */
+        .template-modern h1, .template-modern h2, .template-modern h3 { font-family: 'Poppins', sans-serif; }
+        .template-modern h2 { color: var(--theme-color); border-bottom: 2px solid var(--theme-color); }
+        .template-classic { font-family: 'Lora', serif; }
+        .template-classic h1 { font-size: 2.25rem; text-align: center; font-weight: 700; }
+        .template-classic h2 { font-family: 'Poppins', sans-serif; text-transform: uppercase; letter-spacing: 1px; text-align: center; border-bottom: 1px solid #333; border-top: 1px solid #333; padding: 4px 0; margin-top: 1rem; color: var(--theme-color); font-size: 1rem; }
+        .template-creative { display: grid; grid-template-columns: 1fr 2.5fr; gap: 1.5rem; }
+        .template-creative .left-column { background-color: var(--theme-color); color: white; padding: 1.5rem; border-radius: 0.5rem; }
+        .template-creative .left-column h2, .template-creative .left-column h3 { color: white; font-family: 'Poppins'; }
+        .template-creative .left-column h2 { border-bottom: 1px solid rgba(255,255,255,0.5); }
+        .template-creative .left-column a { color: white; text-decoration: underline; }
+        .template-creative .right-column h1 { color: var(--theme-color); font-family: 'Poppins'; }
+        .template-creative .right-column h2 { font-family: 'Poppins', color: var(--theme-color); border-bottom: 2px solid var(--theme-color); }
+
+        /* General UI */
+        .drop-zone.dragover { border-color: #6366f1; background-color: rgba(99, 102, 241, 0.1); transform: scale(1.02); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .template-card { transition: transform 0.2s, box-shadow 0.2s; }
+        .template-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+        .form-section { animation: slideIn 0.5s ease-in-out forwards; opacity: 0; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-200">
+    <div class="fixed inset-0 bg-black/50 z-[-1]"></div>
+    <header class="bg-slate-900/80 backdrop-blur-sm sticky top-0 z-50 shadow-md shadow-black/20 border-b border-slate-800">
+        <div class="max-w-7xl mx-auto flex justify-between items-center py-4 px-6">
+            <a href="main.html" class="flex items-center">
+                <img src="https://glaonline.com/certificate/images/gla-logo-12-b.png" alt="GLA University Logo" class="h-8 w-auto mr-3">
+                <span class="text-xl font-bold text-slate-200">GLA Placement Prep Hub</span>
+            </a>
+            <div class="flex items-center space-x-4">
+                <button id="mode-toggle" class="p-2 rounded-full text-slate-400 hover:bg-slate-700 transition-colors duration-300">
+                    <svg id="sun-icon" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                    <svg id="moon-icon" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+                </button>
+                 <div class="relative">
+                    <button id="profile-button" class="flex items-center space-x-2">
+                        <img class="h-10 w-10 rounded-full" src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhMj9fWYXAUyeMebIjMj4mynMNorEmfP4aXVH9w6nTk5P4cee-nugbiQkbAuu33j9bx1QkHmi_1L3BOCYOkEeP9YNQseaKOhFxm7eiHdlKxBwXRPNkRGD5N5Y01I2WuSb4D7ivkkPgVZonMqj6ibzK3eiRC3k7xRaINvNr1N8PaEFe-Aoeb_UyAOaX-ENs/w317-h321/1000019956.jpg" alt="User avatar">
+                        <span class="hidden md:block font-semibold">Kushagra</span>
+                        <svg class="h-5 w-5 text-slate-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                    </button>
+                    <div id="profile-menu" class="hidden absolute right-0 mt-2 w-48 bg-slate-800 rounded-md shadow-lg py-1 border border-slate-700">
+                        <a href="profile.html" class="block px-4 py-2 text-sm text-slate-200 hover:bg-slate-700">My Profile</a>
+                        <a href="index.html" class="block px-4 py-2 text-sm text-red-400 hover:bg-slate-700">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-screen-xl mx-auto p-4 md:p-6 my-10">
+        <!-- Step 1: Method Selection -->
+        <div id="method-selection-view" class="max-w-3xl mx-auto text-center animate-fadeIn">
+            <h1 class="dynamic-text text-4xl md:text-5xl font-bold text-indigo-400">AI Resume Architect</h1>
+            <p class="mt-4 text-lg text-gray-400">Let's build your perfect resume. How would you like to start?</p>
+            <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div id="start-from-scratch-btn" class="bg-slate-800/50 border border-slate-700 rounded-2xl p-8 shadow-lg cursor-pointer hover:border-indigo-500 hover:bg-slate-800 transition group">
+                    <h2 class="dynamic-text text-2xl font-bold">Start from Scratch</h2>
+                    <p class="text-gray-400 mt-2">Let our AI guide you step-by-step to create a new resume.</p>
+                </div>
+                <div id="drop-zone" class="bg-slate-800/50 border-2 border-dashed border-slate-600 rounded-2xl p-8 shadow-lg cursor-pointer hover:border-indigo-500 hover:bg-slate-800 transition group">
+                     <h2 class="dynamic-text text-2xl font-bold">Upload Existing Resume</h2>
+                     <p class="text-gray-400 mt-2">Drag & drop your resume (PDF) here for AI analysis and reformatting.</p>
+                     <div id="upload-spinner" class="hidden mt-4"><div class="w-8 h-8 mx-auto border-4 border-indigo-500 border-t-transparent rounded-full animate-spinner"></div></div>
+                </div>
+                <input type="file" id="file-input" class="hidden" accept=".pdf">
+            </div>
+        </div>
+
+        <!-- Step 2: Guided Form -->
+        <div id="guided-form-view" class="hidden max-w-3xl mx-auto">
+             <h1 class="dynamic-text text-4xl font-bold text-indigo-400 text-center">Tell Us About Yourself</h1>
+             <p class="mt-2 text-lg text-gray-400 text-center">Fill in the details below. Our AI will handle the formatting.</p>
+             <div class="mt-8 space-y-6">
+                <!-- Personal Details -->
+                <div class="form-section bg-slate-800/50 p-6 rounded-2xl border border-slate-700">
+                    <h2 class="text-2xl font-bold mb-4">Personal Details</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <input type="text" id="form-name" placeholder="Your Name" class="bg-slate-800 p-3 rounded-lg border border-slate-600 focus:ring-1 focus:ring-indigo-500">
+                        <input type="email" id="form-email" placeholder="Your Email" class="bg-slate-800 p-3 rounded-lg border border-slate-600 focus:ring-1 focus:ring-indigo-500">
+                        <input type="tel" id="form-phone" placeholder="Your Phone Number" class="bg-slate-800 p-3 rounded-lg border border-slate-600 focus:ring-1 focus:ring-indigo-500">
+                        <input type="text" id="form-linkedin" placeholder="LinkedIn Profile URL" class="bg-slate-800 p-3 rounded-lg border border-slate-600 focus:ring-1 focus:ring-indigo-500">
+                    </div>
+                    <textarea id="form-summary" placeholder="A brief professional summary..." rows="4" class="w-full mt-4 bg-slate-800 p-3 rounded-lg border border-slate-600 focus:ring-1 focus:ring-indigo-500"></textarea>
+                </div>
+                <!-- Experience -->
+                <div id="experience-section" class="form-section bg-slate-800/50 p-6 rounded-2xl border border-slate-700" style="animation-delay: 0.1s;">
+                    <h2 class="text-2xl font-bold mb-4">Work Experience</h2>
+                    <div id="experience-entries"></div>
+                    <button id="add-experience-btn" class="mt-4 text-indigo-400 font-semibold">+ Add Experience</button>
+                </div>
+                <!-- Education -->
+                <div class="form-section bg-slate-800/50 p-6 rounded-2xl border border-slate-700" style="animation-delay: 0.2s;">
+                    <h2 class="text-2xl font-bold mb-4">Education</h2>
+                    <div id="education-entries"></div>
+                    <button id="add-education-btn" class="mt-4 text-indigo-400 font-semibold">+ Add Education</button>
+                </div>
+                 <!-- Skills -->
+                <div class="form-section bg-slate-800/50 p-6 rounded-2xl border border-slate-700" style="animation-delay: 0.3s;">
+                    <h2 class="text-2xl font-bold mb-4">Skills</h2>
+                    <textarea id="form-skills" placeholder="List your skills, separated by commas (e.g., Python, React, Project Management)" rows="4" class="w-full bg-slate-800 p-3 rounded-lg border border-slate-600 focus:ring-1 focus:ring-indigo-500"></textarea>
+                </div>
+                <button id="submit-form-btn" class="w-full py-3 px-6 rounded-lg shadow-lg text-lg font-semibold text-white bg-gradient-to-r from-indigo-500 to-purple-500 hover:opacity-90 transition-opacity">Proceed to Templates</button>
+             </div>
+        </div>
+
+        <!-- Step 3: Template Selection -->
+        <div id="template-selection-view" class="hidden text-center">
+             <h1 class="dynamic-text text-4xl font-bold text-indigo-400">Choose a Template</h1>
+             <p class="mt-2 text-lg text-gray-400">Select a layout that best represents you. You can edit all the details next.</p>
+             <div id="template-options" class="mt-8 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8"></div>
+        </div>
+
+        <!-- Step 4: Main Builder View -->
+        <div id="builder-view" class="hidden grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-6 h-full">
+            <aside class="lg:col-span-1 xl:col-span-1 bg-slate-800/50 border border-slate-700 rounded-2xl p-4 md:p-6 flex flex-col space-y-6 overflow-y-auto no-scrollbar">
+                <button id="back-to-templates-btn" class="w-full py-2.5 px-4 rounded-lg font-semibold text-white bg-gray-600 hover:bg-gray-500 transition flex items-center justify-center">Change Template</button>
+                <div>
+                    <h2 class="dynamic-text text-xl font-bold text-indigo-400 mb-3">Theme & Style</h2>
+                    <label for="theme-color" class="font-semibold text-sm">Accent Color</label>
+                    <input type="color" id="theme-color" value="#6366f1" class="w-full h-10 p-1 bg-slate-700 rounded-lg cursor-pointer">
+                </div>
+                <div>
+                    <h2 class="dynamic-text text-xl font-bold text-indigo-400 mb-3">AI Analysis Engine</h2>
+                    <button id="analyze-resume-btn" class="w-full py-2.5 px-4 rounded-lg shadow-lg font-semibold text-white bg-indigo-600 hover:bg-indigo-500 transition flex items-center justify-center">Analyze Resume</button>
+                </div>
+                <div id="analysis-results" class="space-y-4"></div>
+            </aside>
+            <div class="lg:col-span-2 xl:col-span-3">
+                 <div class="flex justify-end mb-4">
+                    <button id="export-pdf-btn" class="py-2 px-5 rounded-lg shadow-md font-semibold text-white bg-green-600 hover:bg-green-500 transition-colors flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                        Download PDF
+                    </button>
+                </div>
+                <div id="resume-container" class="bg-white text-gray-800 p-8 md:p-12 shadow-2xl rounded-lg min-h-[1100px]">
+                    <div id="resume-preview" class="resume-preview" contenteditable="true"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Day/Night Mode & Profile Dropdown Logic ---
+            const modeToggleButton = document.getElementById('mode-toggle');
+            const sunIcon = document.getElementById('sun-icon');
+            const moonIcon = document.getElementById('moon-icon');
+            const applyMode = (mode) => {
+                if (mode === 'night') {
+                    document.body.classList.add('night-mode');
+                    sunIcon.classList.add('hidden'); moonIcon.classList.remove('hidden');
+                } else {
+                    document.body.classList.remove('night-mode');
+                    sunIcon.classList.remove('hidden'); moonIcon.classList.add('hidden');
+                }
+            };
+            modeToggleButton.addEventListener('click', () => {
+                const newMode = document.body.classList.contains('night-mode') ? 'day' : 'night';
+                localStorage.setItem('mode', newMode); applyMode(newMode);
+            });
+            const savedMode = localStorage.getItem('mode') || 'day';
+            applyMode(savedMode);
+            const profileButton = document.getElementById('profile-button');
+            const profileMenu = document.getElementById('profile-menu');
+            profileButton.addEventListener('click', (e) => { e.stopPropagation(); profileMenu.classList.toggle('hidden'); });
+            document.addEventListener('click', (e) => { if (!profileButton.contains(e.target) && !profileMenu.contains(e.target)) { profileMenu.classList.add('hidden'); } });
+
+            // --- Page Elements & State ---
+            const methodSelectionView = document.getElementById('method-selection-view');
+            const guidedFormView = document.getElementById('guided-form-view');
+            const templateSelectionView = document.getElementById('template-selection-view');
+            const builderView = document.getElementById('builder-view');
+            const resumePreview = document.getElementById('resume-preview');
+            const analysisResults = document.getElementById('analysis-results');
+            const themeColorInput = document.getElementById('theme-color');
+            const exportPdfBtn = document.getElementById('export-pdf-btn');
+            const backToTemplatesBtn = document.getElementById('back-to-templates-btn');
+            const templateOptionsContainer = document.getElementById('template-options');
+            
+            let resumeData = null; // To store the AI-generated JSON content
+
+            // --- Navigation ---
+            document.getElementById('start-from-scratch-btn').addEventListener('click', () => {
+                methodSelectionView.classList.add('hidden');
+                guidedFormView.classList.remove('hidden');
+                if (!document.getElementById('experience-entries').hasChildNodes()) addExperienceEntry();
+                if (!document.getElementById('education-entries').hasChildNodes()) addEducationEntry();
+            });
+
+            function showTemplateSelection() {
+                displayTemplateOptions();
+                guidedFormView.classList.add('hidden');
+                methodSelectionView.classList.add('hidden');
+                templateSelectionView.classList.remove('hidden');
+                templateSelectionView.classList.add('animate-fadeIn');
+            }
+            
+            // --- Shared API Call Logic ---
+            async function callGeminiAPI(prompt, isJsonExpected = true) {
+                const result = await window.callGeminiAPI(prompt, isJsonExpected);
+                return isJsonExpected ? result.json : result.text;
+            }
+
+            // --- Guided Form Logic ---
+            const experienceEntries = document.getElementById('experience-entries');
+            const educationEntries = document.getElementById('education-entries');
+            
+            function addExperienceEntry() {
+                const entry = document.createElement('div');
+                entry.className = 'p-4 border border-slate-700 rounded-lg mt-4 space-y-3';
+                entry.innerHTML = `
+                    <input type="text" placeholder="Job Title" class="form-title w-full bg-slate-800 p-2 rounded border border-slate-600">
+                    <input type="text" placeholder="Company" class="form-company w-full bg-slate-800 p-2 rounded border border-slate-600">
+                    <input type="text" placeholder="Duration (e.g., Jan 2020 - Present)" class="form-duration w-full bg-slate-800 p-2 rounded border border-slate-600">
+                    <textarea placeholder="Key Responsibilities" rows="3" class="form-responsibilities w-full bg-slate-800 p-2 rounded border border-slate-600"></textarea>
+                    <button class="remove-entry-btn text-red-400 text-sm">Remove</button>
+                `;
+                experienceEntries.appendChild(entry);
+                entry.querySelector('.remove-entry-btn').addEventListener('click', () => entry.remove());
+            }
+
+            function addEducationEntry() {
+                const entry = document.createElement('div');
+                entry.className = 'p-4 border border-slate-700 rounded-lg mt-4 space-y-3';
+                entry.innerHTML = `
+                    <input type="text" placeholder="Degree or Certificate" class="form-degree w-full bg-slate-800 p-2 rounded border border-slate-600">
+                    <input type="text" placeholder="University or Institution" class="form-university w-full bg-slate-800 p-2 rounded border border-slate-600">
+                    <input type="text" placeholder="Duration (e.g., Aug 2016 - May 2020)" class="form-duration w-full bg-slate-800 p-2 rounded border border-slate-600">
+                     <button class="remove-entry-btn text-red-400 text-sm">Remove</button>
+                `;
+                educationEntries.appendChild(entry);
+                entry.querySelector('.remove-entry-btn').addEventListener('click', () => entry.remove());
+            }
+            
+            document.getElementById('add-experience-btn').addEventListener('click', addExperienceEntry);
+            document.getElementById('add-education-btn').addEventListener('click', addEducationEntry);
+
+            document.getElementById('submit-form-btn').addEventListener('click', () => {
+                resumeData = {
+                    name: document.getElementById('form-name').value,
+                    contact: {
+                        phone: document.getElementById('form-phone').value,
+                        email: document.getElementById('form-email').value,
+                        linkedin: document.getElementById('form-linkedin').value
+                    },
+                    summary: document.getElementById('form-summary').value,
+                    experience: [...experienceEntries.children].map(e => ({
+                        title: e.querySelector('.form-title').value,
+                        company: e.querySelector('.form-company').value,
+                        duration: e.querySelector('.form-duration').value,
+                        responsibilities: e.querySelector('.form-responsibilities').value.split('\n')
+                    })),
+                    education: [...educationEntries.children].map(e => ({
+                        degree: e.querySelector('.form-degree').value,
+                        university: e.querySelector('.form-university').value,
+                        duration: e.querySelector('.form-duration').value
+                    })),
+                    skills: document.getElementById('form-skills').value.split(',').map(s => s.trim())
+                };
+                showTemplateSelection();
+            });
+
+            // --- Drag & Drop / Upload Logic ---
+            const dropZone = document.getElementById('drop-zone');
+            const fileInput = document.getElementById('file-input');
+            dropZone.addEventListener('click', () => fileInput.click());
+            dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+            dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+            dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('dragover'); handleFile(e.dataTransfer.files[0]); });
+            fileInput.addEventListener('change', e => handleFile(e.target.files[0]));
+
+            function handleFile(file) {
+                if (!file || file.type !== 'application/pdf') {
+                    alert('Please upload a PDF file.');
+                    return;
+                }
+                if (file.size > 2_000_000) {
+                    alert('Please choose a PDF smaller than 2 MB.');
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onloadend = async () => {
+                    const base64String = reader.result.split(',')[1];
+                    document.getElementById('upload-spinner').classList.remove('hidden');
+                    const prompt = 'Read this resume and return only valid JSON with keys: name, contact (phone, email, linkedin), summary, experience (array of title, company, duration, responsibilities array), education (array of degree, university, duration), and skills (array of strings). Use empty strings or arrays for missing information.';
+                    try {
+                        const result = await window.callGeminiAPI([
+                            { text: prompt },
+                            { inlineData: { mimeType: 'application/pdf', data: base64String } }
+                        ], true);
+                        const parsed = result.json;
+                        if (!parsed || typeof parsed !== 'object' || !parsed.contact || !Array.isArray(parsed.experience) || !Array.isArray(parsed.education) || !Array.isArray(parsed.skills)) {
+                            throw new Error('The resume response did not match the expected format.');
+                        }
+                        resumeData = parsed;
+                        showTemplateSelection();
+                    } catch (e) {
+                        alert(`Failed to parse resume: ${e.message}`);
+                    } finally {
+                        document.getElementById('upload-spinner').classList.add('hidden');
+                    }
+                };
+            }
+            
+            // --- Template Selection and Rendering ---
+            function displayTemplateOptions() {
+                const templates = [
+                    { name: 'Modern', renderFunc: renderModernTemplate },
+                    { name: 'Classic', renderFunc: renderClassicTemplate },
+                    { name: 'Creative', renderFunc: renderCreativeTemplate }
+                ];
+                templateOptionsContainer.innerHTML = templates.map(t => `
+                    <div class="template-card bg-white text-gray-800 p-4 rounded-lg shadow-lg cursor-pointer" data-template-name="${t.name}">
+                        <h3 class="font-bold text-xl mb-2">${t.name}</h3>
+                        <div class="h-96 w-full overflow-hidden border rounded bg-white" style="transform-origin: top left; transform: scale(0.3); ">
+                           ${t.renderFunc(resumeData)}
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            templateOptionsContainer.addEventListener('click', (e) => {
+                const card = e.target.closest('.template-card');
+                if (card) {
+                    selectTemplate(card.dataset.templateName);
+                    templateSelectionView.classList.add('hidden');
+                    builderView.classList.remove('hidden');
+                    builderView.classList.add('animate-fadeIn');
+                }
+            });
+
+            function selectTemplate(name) {
+                let html = '';
+                if (name === 'Modern') html = renderModernTemplate(resumeData);
+                if (name === 'Classic') html = renderClassicTemplate(resumeData);
+                if (name === 'Creative') html = renderCreativeTemplate(resumeData);
+                resumePreview.innerHTML = html;
+                // Add the class for CSS targeting
+                resumePreview.className = 'resume-preview'; // reset
+                resumePreview.classList.add(`template-${name.toLowerCase()}`);
+            }
+
+            backToTemplatesBtn.addEventListener('click', () => {
+                builderView.classList.add('hidden');
+                templateSelectionView.classList.remove('hidden');
+            });
+            
+             function renderModernTemplate(data) {
+                return `<div class="p-8">
+                        <div class="text-center mb-6">
+                            <h1 class="text-4xl font-bold">${data.name || 'Your Name'}</h1>
+                            <p class="text-sm">${data.contact.phone} | ${data.contact.email} | <a href="${data.contact.linkedin}" class="text-blue-600">${data.contact.linkedin}</a></p>
+                        </div>
+                        <section><h2 class="text-2xl font-bold pb-2 mb-2">Summary</h2><p>${data.summary}</p></section>
+                        <section class="mt-4"><h2 class="text-2xl font-bold pb-2 mb-2">Experience</h2>
+                            ${data.experience.map(exp => `<div class="mb-3"><h3 class="text-xl font-semibold">${exp.title}</h3><div class="flex justify-between text-sm"><p class="font-bold">${exp.company}</p><em>${exp.duration}</em></div><ul class="list-disc list-inside mt-1 text-sm">${exp.responsibilities.map(r => `<li>${r}</li>`).join('')}</ul></div>`).join('')}
+                        </section>
+                        <section class="mt-4"><h2 class="text-2xl font-bold pb-2 mb-2">Education</h2>
+                            ${data.education.map(edu => `<div class="mb-2"><h3 class="text-xl font-semibold">${edu.degree}</h3><p>${edu.university} | <em>${edu.duration}</em></p></div>`).join('')}
+                        </section>
+                        <section class="mt-4"><h2 class="text-2xl font-bold pb-2 mb-2">Skills</h2><p>${data.skills.join(', ')}</p></section>
+                    </div>`;
+            }
+
+            function renderClassicTemplate(data) {
+                return `<div class="p-8">
+                        <h1 class="mb-4">${data.name || 'Your Name'}</h1>
+                        <p class="text-center text-sm mb-4">${data.contact.phone} | ${data.contact.email} | <a href="${data.contact.linkedin}" class="text-blue-600">${data.contact.linkedin}</a></p>
+                        <section><h2 class="font-bold pb-1 mb-2">Summary</h2><p class="text-sm">${data.summary}</p></section>
+                        <section><h2 class="font-bold pb-1 mb-2">Experience</h2>
+                            ${data.experience.map(exp => `<div class="mb-3"><h3 class="text-lg font-semibold">${exp.title}</h3><div class="flex justify-between text-xs italic"><p class="font-bold not-italic">${exp.company}</p><p>${exp.duration}</p></div><ul class="list-disc list-inside mt-1 text-sm">${exp.responsibilities.map(r => `<li>${r}</li>`).join('')}</ul></div>`).join('')}
+                        </section>
+                        <section><h2 class="font-bold pb-1 mb-2">Education</h2>
+                            ${data.education.map(edu => `<div class="mb-2"><h3 class="text-lg font-semibold">${edu.degree}</h3><div class="flex justify-between text-xs italic"><p>${edu.university}</p><p>${edu.duration}</p></div></div>`).join('')}
+                        </section>
+                        <section><h2 class="font-bold pb-1 mb-2">Skills</h2><p class="text-sm">${data.skills.join(' • ')}</p></section>
+                    </div>`;
+            }
+            
+            function renderCreativeTemplate(data) {
+                return `<div class="p-0">
+                    <div class="right-column p-8">
+                        <h1 class="text-4xl font-bold mb-1">${data.name || 'Your Name'}</h1>
+                        <p class="text-lg mb-4">Professional Summary</p>
+                        <p>${data.summary}</p>
+                        <section class="mt-6"><h2 class="text-2xl font-bold pb-2 mb-2">Experience</h2>
+                            ${data.experience.map(exp => `<div class="mb-3"><h3 class="text-xl font-semibold">${exp.title}</h3><div class="flex justify-between text-sm"><p class="font-bold">${exp.company}</p><em>${exp.duration}</em></div><ul class="list-disc list-inside mt-1 text-sm">${exp.responsibilities.map(r => `<li>${r}</li>`).join('')}</ul></div>`).join('')}
+                        </section>
+                    </div>
+                    <div class="left-column">
+                        <h2 class="text-xl font-bold pb-2 mb-2">Contact</h2>
+                        <p class="text-sm">${data.contact.phone}</p>
+                        <p class="text-sm">${data.contact.email}</p>
+                        <p class="text-sm"><a href="${data.contact.linkedin}">${data.contact.linkedin}</a></p>
+                        <h2 class="text-xl font-bold pb-2 mb-2 mt-6">Education</h2>
+                            ${data.education.map(edu => `<div class="mb-2"><h3 class="text-lg font-semibold">${edu.degree}</h3><p class="text-sm">${edu.university}</p><em class="text-xs">${edu.duration}</em></div>`).join('')}
+                        <h2 class="text-xl font-bold pb-2 mb-2 mt-6">Skills</h2>
+                        <ul class="text-sm">${data.skills.map(s => `<li>${s}</li>`).join('')}</ul>
+                    </div>
+                </div>`;
+            }
+            
+            // --- Analysis & Export Logic (remains the same) ---
+            themeColorInput.addEventListener('input', (e) => {
+                document.querySelector('.resume-preview').style.setProperty('--theme-color', e.target.value);
+                // Also update creative template preview background
+                const creativePreview = document.querySelector('[data-template-name="Creative"] .left-column');
+                if (creativePreview) creativePreview.style.backgroundColor = e.target.value;
+            });
+            exportPdfBtn.addEventListener('click', () => { 
+                const resumeElement = document.getElementById('resume-container');
+                const opt = { margin: 0.5, filename: 'resume.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' } };
+                html2pdf().set(opt).from(resumeElement).save();
+             });
+            document.getElementById('analyze-resume-btn').addEventListener('click', async () => { 
+                const resumeHtml = resumePreview.innerHTML;
+                analysisResults.innerHTML = `<div class="flex justify-center items-center"><div class="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spinner"></div></div>`;
+                document.getElementById('analyze-resume-btn').disabled = true;
+
+                const prompt = `Analyze this resume HTML: \`${resumeHtml}\`. Provide feedback on clarity, impact, keyword optimization (ATS), and formatting. Response MUST be ONLY raw JSON in a \`\`\`json block with keys: "atsScore" (number 0-100), "clarity" (string), "keywords" (string), "formatting" (string). Keep feedback concise and actionable.`;
+                
+                try {
+                    const analysis = await callGeminiAPI(prompt);
+                    displayAnalysis(analysis);
+                } catch (e) {
+                    analysisResults.innerHTML = `<p class="text-red-400">Analysis failed: ${e.message}</p>`;
+                } finally { document.getElementById('analyze-resume-btn').disabled = false; }
+             });
+            function displayAnalysis(data) {
+                 const atsScoreHTML = `<div class="bg-slate-700/50 p-4 rounded-lg text-center"><p class="font-bold text-lg">ATS Compatibility Score</p><div class="relative w-24 h-24 mx-auto mt-2"><svg class="w-full h-full" viewBox="0 0 36 36"><path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#374151" stroke-width="3"></path><path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="var(--theme-color)" stroke-width="3" stroke-dasharray="${data.atsScore}, 100" stroke-linecap="round"></path></svg><span class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-2xl font-bold">${data.atsScore}%</span></div></div>`;
+                const feedbackSection = (title, content) => `<div class="bg-slate-700/50 p-4 rounded-lg animate-slideIn"><h3 class="font-bold text-indigo-400">${title}</h3><p class="text-sm text-gray-300 mt-1">${content}</p></div>`;
+                analysisResults.innerHTML = `${atsScoreHTML}${feedbackSection('Clarity & Impact', data.clarity)}${feedbackSection('Keyword Optimization', data.keywords)}${feedbackSection('Formatting & Readability', data.formatting)}`;
+            }
+        });
+    </script>
+</body>
+</html>
+

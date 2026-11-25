@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coding Practice - GLA Placement Prep Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    keyframes: {
+                        spinner: {
+                            '0%': { transform: 'rotate(0deg)' },
+                            '100%': { transform: 'rotate(360deg)' },
+                        }
+                    },
+                    animation: {
+                        'spinner': 'spinner 1s linear infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="config.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@600;700&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            --bg-day: url('https://images.shiksha.com/mediadata/images/articles/1663312168phpn90Wh7.jpeg');
+            --bg-night: url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgzt2wpPoqJ2B_0kB4yAEwR2qKbJ132T5adXIPPN-SHRe3vXt1LNn8U-Zi636Ig4rfA00hCYN9ed7E4fp0J_GZMxcgTwYud7s-kQ7B7yHbLeVOzbpElPr6jfeAkzF2uxaHIofwDYFXeP3-oXXwdYBly8TOyb28EmjAG8TzZstGlkeT0eJERVUCkS7iN8Is/s1600/Gemini_Generated_Image_s4b9vos4b9vos4b9%20(1).png');
+            background-image: var(--bg-day);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            transition: background-image 0.5s ease-in-out;
+        }
+        body.night-mode {
+            background-image: var(--bg-night);
+        }
+        .dynamic-text { font-family: 'Poppins', sans-serif; }
+        .code-font { font-family: 'Source Code Pro', monospace; }
+        .language-card.selected {
+            transform: scale(1.05);
+            border-color: #6366f1; /* indigo-500 */
+            box-shadow: 0 4px 14px 0 rgba(99, 102, 241, 0.3);
+        }
+        /* Custom scrollbar for compiler */
+        .compiler-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .compiler-scrollbar::-webkit-scrollbar-track {
+            background: #1e293b; /* slate-800 */
+        }
+        .compiler-scrollbar::-webkit-scrollbar-thumb {
+            background: #4f46e5; /* indigo-600 */
+            border-radius: 4px;
+        }
+        .compiler-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #6366f1; /* indigo-500 */
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-200">
+
+    <div class="fixed inset-0 bg-black/50 z-[-1]"></div>
+
+    <header class="bg-slate-900/80 backdrop-blur-sm sticky top-0 z-50 shadow-md shadow-black/20 border-b border-slate-800">
+        <div class="max-w-7xl mx-auto flex justify-between items-center py-4 px-6">
+            <a href="main.html" class="flex items-center">
+                <img src="https://glaonline.com/certificate/images/gla-logo-12-b.png" alt="GLA University Logo" class="h-8 w-auto mr-3">
+                <span class="text-xl font-bold text-slate-200">GLA Placement Prep Hub</span>
+            </a>
+            <div class="flex items-center space-x-4">
+                <button id="mode-toggle" class="p-2 rounded-full text-slate-400 hover:bg-slate-700 transition-colors duration-300">
+                    <svg id="sun-icon" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                    <svg id="moon-icon" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+                </button>
+                <div class="relative">
+                    <button id="profile-button" class="flex items-center space-x-2">
+                        <img class="h-10 w-10 rounded-full" src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhMj9fWYXAUyeMebIjMj4mynMNorEmfP4aXVH9w6nTk5P4cee-nugbiQkbAuu33j9bx1QkHmi_1L3BOCYOkEeP9YNQseaKOhFxm7eiHdlKxBwXRPNkRGD5N5Y01I2WuSb4D7ivkkPgVZonMqj6ibzK3eiRC3k7xRaINvNr1N8PaEFe-Aoeb_UyAOaX-ENs/w317-h321/1000019956.jpg" alt="User avatar">
+                        <span class="hidden md:block font-semibold">Kushagra</span>
+                        <svg class="h-5 w-5 text-slate-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                    </button>
+                    <div id="profile-menu" class="hidden absolute right-0 mt-2 w-48 bg-slate-800 rounded-md shadow-lg py-1 border border-slate-700">
+                        <a href="profile.html" class="block px-4 py-2 text-sm text-slate-200 hover:bg-slate-700">My Profile</a>
+                        <a href="index.html" class="block px-4 py-2 text-sm text-red-400 hover:bg-slate-700">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto p-6 my-10">
+        <div class="text-center" data-aos="fade-down">
+            <h1 class="dynamic-text text-4xl font-bold text-indigo-400">Coding Practice Central</h1>
+            <p class="mt-2 text-lg text-gray-400">Your personal AI-powered coding dojo.</p>
+        </div>
+        
+        <div id="practice-form" class="mt-10 max-w-4xl mx-auto" data-aos="fade-up" data-aos-delay="200">
+             <div class="mb-8">
+                <label class="text-lg font-semibold mb-3 block">1. Choose Your Language</label>
+                <div id="language-selector" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div data-lang="Python" class="language-card cursor-pointer bg-slate-800 p-4 rounded-xl shadow border-2 border-transparent text-center transition-all duration-300"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" class="h-10 mx-auto pointer-events-none" /><p class="mt-2 font-semibold pointer-events-none">Python</p></div>
+                    <div data-lang="Java" class="language-card cursor-pointer bg-slate-800 p-4 rounded-xl shadow border-2 border-transparent text-center transition-all duration-300"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg" class="h-10 mx-auto pointer-events-none" /><p class="mt-2 font-semibold pointer-events-none">Java</p></div>
+                    <div data-lang="C++" class="language-card cursor-pointer bg-slate-800 p-4 rounded-xl shadow border-2 border-transparent text-center transition-all duration-300"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cplusplus/cplusplus-original.svg" class="h-10 mx-auto pointer-events-none" /><p class="mt-2 font-semibold pointer-events-none">C++</p></div>
+                    <div data-lang="JavaScript" class="language-card cursor-pointer bg-slate-800 p-4 rounded-xl shadow border-2 border-transparent text-center transition-all duration-300"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" class="h-10 mx-auto pointer-events-none" /><p class="mt-2 font-semibold pointer-events-none">JavaScript</p></div>
+                </div>
+            </div>
+            <div class="mb-8">
+                <label class="text-lg font-semibold mb-3 block" for="topic-input">2. Enter a Topic</label>
+                <input type="text" id="topic-input" class="w-full bg-slate-800 border-2 border-slate-700 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition" placeholder="e.g., for loop, arrays, recursion, dynamic programming...">
+            </div>
+            <div class="mb-8">
+                <label class="text-lg font-semibold mb-3 block">3. Select Difficulty</label>
+                <div id="difficulty-selector" class="flex justify-start space-x-2 bg-slate-800 p-1 rounded-xl max-w-sm">
+                    <button data-level="Easy" class="difficulty-btn w-full px-4 py-2 rounded-lg font-semibold text-slate-300 hover:bg-slate-700 transition-all duration-300">Easy</button>
+                    <button data-level="Medium" class="difficulty-btn w-full px-4 py-2 rounded-lg font-semibold text-slate-300 bg-slate-900 shadow transition-all duration-300">Medium</button>
+                    <button data-level="Hard" class="difficulty-btn w-full px-4 py-2 rounded-lg font-semibold text-slate-300 hover:bg-slate-700 transition-all duration-300">Hard</button>
+                </div>
+            </div>
+            <div>
+                <p id="form-error" class="text-red-500 text-sm h-4 mb-2"></p>
+                <button id="generate-button" class="py-3 px-10 rounded-lg shadow-lg text-lg font-semibold text-white bg-gradient-to-r from-indigo-500 to-purple-500 hover:opacity-90 transition-opacity">Generate Problems</button>
+            </div>
+        </div>
+
+        <div id="results-section" class="mt-12 hidden" data-aos="fade-up">
+            <div id="loader" class="text-center"><div class="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spinner mx-auto"></div><p class="mt-4 text-gray-400">AI is generating your personalized practice set...</p></div>
+            <div id="results-skeletons" class="hidden space-y-4">
+                <div class="bg-slate-800 p-4 rounded-xl shadow animate-pulse"><div class="h-6 bg-slate-700 rounded w-3/4"></div><div class="h-4 bg-slate-700 rounded w-full mt-2"></div></div>
+                <div class="bg-slate-800 p-4 rounded-xl shadow animate-pulse"><div class="h-6 bg-slate-700 rounded w-1/2"></div><div class="h-4 bg-slate-700 rounded w-full mt-2"></div></div>
+                <div class="bg-slate-800 p-4 rounded-xl shadow animate-pulse"><div class="h-6 bg-slate-700 rounded w-5/6"></div><div class="h-4 bg-slate-700 rounded w-full mt-2"></div></div>
+            </div>
+            <div id="results-content" class="hidden"></div>
+        </div>
+    </main>
+
+    <div id="compiler-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" onclick="closeCompiler(event)">
+        <div id="compiler-container" class="bg-slate-900 w-full max-w-6xl h-[90vh] rounded-2xl shadow-2xl flex flex-col border border-slate-700" onclick="event.stopPropagation()">
+            <div class="flex-shrink-0 flex justify-between items-center p-4 border-b border-slate-700">
+                <h2 id="problem-title" class="dynamic-text text-2xl font-bold text-indigo-400">Problem Title</h2>
+                <button id="close-compiler-btn" class="p-2 rounded-full hover:bg-slate-700 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+            </div>
+            <div class="flex-grow flex flex-col md:flex-row overflow-hidden">
+                <div id="problem-description" class="w-full md:w-1/3 p-6 overflow-y-auto compiler-scrollbar border-b md:border-b-0 md:border-r border-slate-700">
+                    </div>
+                <div class="w-full md:w-2/3 flex flex-col">
+                    <div class="flex-grow h-1/2 relative">
+                        <textarea id="code-editor" class="code-font w-full h-full p-4 bg-[#1E1E1E] text-slate-200 outline-none resize-none border-b border-slate-700" placeholder="Write your code here..."></textarea>
+                    </div>
+                    <div class="flex-grow h-1/2 flex flex-col bg-slate-800/50">
+                        <div class="flex-shrink-0 flex border-b border-slate-700">
+                           <button id="tab-feedback" class="tab-btn px-4 py-2 font-semibold border-b-2 border-indigo-500 text-white">AI Analysis</button>
+                           <button id="tab-advanced" class="tab-btn px-4 py-2 font-semibold border-b-2 border-transparent text-slate-400">Advanced Tools</button>
+                        </div>
+                        <div id="ai-feedback" class="flex-grow p-6 overflow-y-auto compiler-scrollbar">
+                            <div id="feedback-placeholder" class="text-center text-gray-400">
+                                <svg class="w-12 h-12 mx-auto text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M21 12c0 4.142-3.358 7.5-7.5 7.5-1.873 0-3.61-.693-4.975-1.848l-1.525.866a.75.75 0 01-1.025-.218 3.75 3.75 0 01-.866-1.525A7.47 7.47 0 013 12c0-4.142 3.358-7.5 7.5-7.5s7.5 3.358 7.5 7.5z" /></svg>
+                                <p class="mt-2 font-semibold">AI Analysis will appear here.</p>
+                                <p class="text-sm">Submit your code to get feedback.</p>
+                            </div>
+                            <div id="feedback-content" class="hidden"></div>
+                        </div>
+                        <div id="advanced-tools" class="hidden flex-grow p-6 overflow-y-auto compiler-scrollbar space-y-4">
+                             <div class="flex space-x-2">
+                                 <button id="complexity-btn" disabled class="flex-1 text-sm py-2 px-3 rounded-lg font-semibold text-white bg-slate-700 hover:bg-slate-600 disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed transition flex items-center justify-center">Analyze Complexity</button>
+                                 <button id="optimize-btn" disabled class="flex-1 text-sm py-2 px-3 rounded-lg font-semibold text-white bg-slate-700 hover:bg-slate-600 disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed transition flex items-center justify-center">Optimize Code</button>
+                                 <button id="test-cases-btn" class="flex-1 text-sm py-2 px-3 rounded-lg font-semibold text-white bg-slate-700 hover:bg-slate-600 transition flex items-center justify-center">Generate Test Cases</button>
+                             </div>
+                             <div id="advanced-analysis-content" class="mt-4 p-4 bg-slate-900/50 rounded-lg min-h-[100px]"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="flex-shrink-0 flex justify-end p-4 border-t border-slate-700">
+                <button id="submit-code-btn" class="py-2 px-6 rounded-lg shadow-lg font-semibold text-white bg-indigo-600 hover:bg-indigo-500 transition-colors flex items-center">
+                    <span id="submit-btn-text">Submit & Analyze</span>
+                    <div id="submit-spinner" class="hidden w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spinner ml-2"></div>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            AOS.init({ duration: 800, once: true });
+            
+            // --- Day/Night Mode & Profile Dropdown Logic (unchanged) ---
+            const modeToggleButton = document.getElementById('mode-toggle');
+            const sunIcon = document.getElementById('sun-icon');
+            const moonIcon = document.getElementById('moon-icon');
+            const applyMode = (mode) => {
+                if (mode === 'night') {
+                    document.body.classList.add('night-mode');
+                    sunIcon.classList.add('hidden');
+                    moonIcon.classList.remove('hidden');
+                } else {
+                    document.body.classList.remove('night-mode');
+                    sunIcon.classList.remove('hidden');
+                    moonIcon.classList.add('hidden');
+                }
+            };
+            modeToggleButton.addEventListener('click', () => {
+                const newMode = document.body.classList.contains('night-mode') ? 'day' : 'night';
+                localStorage.setItem('mode', newMode);
+                applyMode(newMode);
+            });
+            const savedMode = localStorage.getItem('mode') || 'day';
+            applyMode(savedMode);
+            const profileButton = document.getElementById('profile-button');
+            const profileMenu = document.getElementById('profile-menu');
+            profileButton.addEventListener('click', (e) => { e.stopPropagation(); profileMenu.classList.toggle('hidden'); });
+            document.addEventListener('click', (e) => { if (!profileButton.contains(e.target) && !profileMenu.contains(e.target)) { profileMenu.classList.add('hidden'); } });
+            
+            // --- CORRECTED Shared API Call Logic ---
+            async function callGeminiAPI(prompt) {
+                const result = await window.callGeminiAPI(prompt, true);
+                return result.json;
+            }
+
+            // --- Problem Generator Logic ---
+            let selectedLanguage = null, selectedTopic = '', selectedDifficulty = 'Medium';
+            const languageSelector = document.getElementById('language-selector');
+            const difficultySelector = document.getElementById('difficulty-selector');
+            const topicInput = document.getElementById('topic-input');
+            const generateButton = document.getElementById('generate-button');
+            const formError = document.getElementById('form-error');
+            const resultsSection = document.getElementById('results-section');
+            const loader = document.getElementById('loader');
+            const resultsSkeletons = document.getElementById('results-skeletons');
+            const resultsContent = document.getElementById('results-content');
+            
+            languageSelector.addEventListener('click', (e) => {
+                const card = e.target.closest('.language-card');
+                if (!card) return;
+                languageSelector.querySelectorAll('.language-card').forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                selectedLanguage = card.dataset.lang;
+            });
+
+            difficultySelector.addEventListener('click', (e) => {
+                const button = e.target.closest('.difficulty-btn');
+                if (!button) return;
+                difficultySelector.querySelectorAll('.difficulty-btn').forEach(b => b.classList.remove('bg-slate-900', 'shadow'));
+                button.classList.add('bg-slate-900', 'shadow');
+                selectedDifficulty = button.dataset.level;
+            });
+            
+            generateButton.addEventListener('click', async () => {
+                selectedTopic = topicInput.value.trim();
+                if (!selectedLanguage) { formError.textContent = 'Please choose a language.'; return; }
+                if (!selectedTopic) { formError.textContent = 'Please enter a topic.'; return; }
+                formError.textContent = '';
+                resultsSection.classList.remove('hidden');
+                loader.classList.add('hidden');
+                resultsContent.classList.add('hidden');
+                resultsSkeletons.classList.remove('hidden');
+                
+                const prompt = `You are an expert placement preparation mentor. Generate 5 coding practice problems for a student.
+                - Language: ${selectedLanguage}
+                - Topic: ${selectedTopic}
+                - Difficulty: ${selectedDifficulty}
+                The output MUST be ONLY raw JSON wrapped in \`\`\`json block. The JSON should be an array of objects. Each object must have these exact keys: "title", "description", and "boilerplate". The description should be in Markdown format. The boilerplate should be a string containing the starting code.`;
+                
+                try {
+                    generateButton.disabled = true;
+                    generateButton.innerHTML = `<span class="inline-block animate-spin mr-2">⟳</span> Generating problems (takes ~8s)...`;
+                    console.log('Requesting problems from Gemini API...');
+                    const parsedData = await callGeminiAPI(prompt);
+                    console.log('Received response from Gemini API:', parsedData);
+                    displayResults(parsedData);
+                } catch (e) {
+                    console.error('Gemini error:', e);
+                    resultsContent.innerHTML = `<div class="bg-red-900/50 border border-red-700 text-red-300 px-4 py-3 rounded-lg"><p><strong>Error:</strong> Failed to generate problems. The AI might be busy. Please try again.</p><p class="text-sm mt-2">Details: ${e.message}</p></div>`;
+                    resultsContent.classList.remove('hidden');
+                } finally {
+                    generateButton.disabled = false;
+                    generateButton.innerHTML = `Generate Problems`;
+                    resultsSkeletons.classList.add('hidden');
+                }
+            });
+
+            function displayResults(data) {
+                const problems = Array.isArray(data)
+                    ? data
+                    : (data?.problems || data?.questions || (data && typeof data === 'object' ? Object.values(data).find(Array.isArray) : []) || []);
+
+                if (!problems || problems.length === 0) {
+                    resultsContent.innerHTML = '<p class="text-gray-400 text-center">No problems were generated for this topic. Please try being more specific.</p>';
+                } else {
+                    const problemsHTML = problems.map((p, index) => {
+                        const problemData = encodeURIComponent(JSON.stringify(p));
+                        return `<div class="problem-card cursor-pointer bg-slate-800 p-4 rounded-xl shadow border border-slate-700 hover:border-indigo-500 hover:bg-slate-700/50 transition-all" data-problem='${problemData}'>
+                            <h3 class="text-lg font-semibold text-indigo-400 pointer-events-none">${index + 1}. ${p.title || 'Coding Problem'}</h3>
+                            <p class="text-sm text-gray-400 mt-1 pointer-events-none">${(p.description || '').substring(0, 100)}...</p>
+                        </div>`;
+                    }).join('');
+                    resultsContent.innerHTML = `<div class="space-y-4">${problemsHTML}</div>`;
+                }
+                resultsContent.classList.remove('hidden');
+            }
+
+            // --- Compiler Modal Logic ---
+            const compilerModal = document.getElementById('compiler-modal');
+            const problemTitleEl = document.getElementById('problem-title');
+            const problemDescriptionEl = document.getElementById('problem-description');
+            const codeEditorEl = document.getElementById('code-editor');
+            const submitCodeBtn = document.getElementById('submit-code-btn');
+            
+            const tabFeedback = document.getElementById('tab-feedback');
+            const tabAdvanced = document.getElementById('tab-advanced');
+            const aiFeedbackPanel = document.getElementById('ai-feedback');
+            const advancedToolsPanel = document.getElementById('advanced-tools');
+
+            const feedbackPlaceholder = document.getElementById('feedback-placeholder');
+            const feedbackContent = document.getElementById('feedback-content');
+            
+            const complexityBtn = document.getElementById('complexity-btn');
+            const optimizeBtn = document.getElementById('optimize-btn');
+            const testCasesBtn = document.getElementById('test-cases-btn');
+            const advancedAnalysisContent = document.getElementById('advanced-analysis-content');
+            
+            let lastCorrectCode = ''; // Store user's correct code for advanced analysis
+            let currentProblemDesc = '';
+
+            resultsContent.addEventListener('click', (e) => {
+                const card = e.target.closest('.problem-card');
+                if (card) {
+                    const problemData = JSON.parse(decodeURIComponent(card.dataset.problem));
+                    openCompiler(problemData);
+                }
+            });
+
+            function openCompiler(problem) {
+                currentProblemDesc = problem.description;
+                problemTitleEl.textContent = problem.title;
+                const descriptionHtml = problem.description.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/`(.*?)`/g, '<code class="bg-slate-700 text-amber-300 px-1 rounded">$1</code>').replace(/\n/g, '<br>');
+                problemDescriptionEl.innerHTML = `<h3 class="dynamic-text text-xl font-bold mb-4">Problem Statement</h3><div class="space-y-3 text-gray-300">${descriptionHtml}</div>`;
+                
+                codeEditorEl.value = problem.boilerplate;
+                
+                // Reset state
+                lastCorrectCode = '';
+                complexityBtn.disabled = true;
+                optimizeBtn.disabled = true;
+                feedbackPlaceholder.classList.remove('hidden');
+                feedbackContent.classList.add('hidden');
+                advancedAnalysisContent.innerHTML = '';
+                switchTab('feedback');
+                
+                compilerModal.classList.remove('hidden');
+            }
+
+            function switchTab(tab) {
+                if (tab === 'feedback') {
+                    tabFeedback.classList.add('border-indigo-500', 'text-white');
+                    tabFeedback.classList.remove('border-transparent', 'text-slate-400');
+                    tabAdvanced.classList.add('border-transparent', 'text-slate-400');
+                    tabAdvanced.classList.remove('border-indigo-500', 'text-white');
+                    aiFeedbackPanel.classList.remove('hidden');
+                    advancedToolsPanel.classList.add('hidden');
+                } else {
+                    tabAdvanced.classList.add('border-indigo-500', 'text-white');
+                    tabAdvanced.classList.remove('border-transparent', 'text-slate-400');
+                    tabFeedback.classList.add('border-transparent', 'text-slate-400');
+                    tabFeedback.classList.remove('border-indigo-500', 'text-white');
+                    advancedToolsPanel.classList.remove('hidden');
+                    aiFeedbackPanel.classList.add('hidden');
+                }
+            }
+            tabFeedback.addEventListener('click', () => switchTab('feedback'));
+            tabAdvanced.addEventListener('click', () => switchTab('advanced'));
+
+            window.closeCompiler = (event) => { if(event.target === compilerModal) compilerModal.classList.add('hidden'); }
+            document.getElementById('close-compiler-btn').addEventListener('click', () => compilerModal.classList.add('hidden'));
+
+            submitCodeBtn.addEventListener('click', async () => {
+                const userCode = codeEditorEl.value;
+                if (!userCode.trim()) return;
+
+                const submitBtnText = document.getElementById('submit-btn-text');
+                const submitSpinner = document.getElementById('submit-spinner');
+                submitBtnText.classList.add('hidden');
+                submitSpinner.classList.remove('hidden');
+                submitCodeBtn.disabled = true;
+                switchTab('feedback');
+
+                feedbackPlaceholder.classList.add('hidden');
+                feedbackContent.classList.remove('hidden');
+                feedbackContent.innerHTML = `<div class="flex items-center justify-center h-full"><div class="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spinner"></div></div>`;
+                
+                const prompt = `Act as an expert code reviewer. A user is solving in ${selectedLanguage}: "${currentProblemDesc}".
+                User's code:
+                \`\`\`${selectedLanguage.toLowerCase()}
+                ${userCode}
+                \`\`\`
+                Analyze the code. Response MUST be ONLY raw JSON in a \`\`\`json block with keys: "isCorrect" (boolean), "feedback" (Markdown string), and "correctCode" (string).`;
+
+                try {
+                    const result = await callGeminiAPI(prompt);
+                    displayFeedback(result);
+                    if (result.isCorrect) {
+                        lastCorrectCode = userCode;
+                        complexityBtn.disabled = false;
+                        optimizeBtn.disabled = false;
+                    } else {
+                        lastCorrectCode = '';
+                        complexityBtn.disabled = true;
+                        optimizeBtn.disabled = true;
+                    }
+                } catch(e) {
+                    feedbackContent.innerHTML = `<div class="text-red-400"><p><strong>Analysis Failed:</strong> Could not get feedback from the AI. Please try again.</p><p class="text-sm mt-1">${e.message}</p></div>`;
+                } finally {
+                    submitBtnText.classList.remove('hidden');
+                    submitSpinner.classList.add('hidden');
+                    submitCodeBtn.disabled = false;
+                }
+            });
+
+            function displayFeedback(result) {
+                const correctnessHTML = result.isCorrect 
+                    ? `<div class="flex items-center mb-4"><span class="w-3 h-3 bg-green-500 rounded-full mr-2"></span><p class="text-green-400 font-bold text-lg">Correct Solution!</p></div>`
+                    : `<div class="flex items-center mb-4"><span class="w-3 h-3 bg-yellow-400 rounded-full mr-2"></span><p class="text-yellow-300 font-bold text-lg">Needs Improvement</p></div>`;
+                const feedbackHTML = `<div><h4 class="font-bold text-slate-300 mb-2">Feedback:</h4><div class="text-gray-300 space-y-2">${result.feedback.replace(/\n/g, '<br>')}</div></div>`;
+                
+                const copyButtonHTML = `<div class="flex justify-between items-center mt-4"><h4 class="font-bold text-slate-300">Suggested Solution:</h4><button onclick="copyCode(this)" class="text-sm bg-slate-700 px-2 py-1 rounded-md hover:bg-slate-600">Copy Code</button></div>`;
+                const correctCodeHTML = `<pre class="bg-[#1E1E1E] p-3 mt-2 rounded-lg overflow-x-auto compiler-scrollbar"><code class="code-font text-sm">${result.correctCode.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</code></pre>`;
+
+                feedbackContent.innerHTML = `${correctnessHTML}${feedbackHTML}${copyButtonHTML}${correctCodeHTML}`;
+            }
+            
+            // --- Advanced Tools Logic ---
+            async function handleAdvancedTool(button, prompt, displayFn) {
+                const originalText = button.textContent;
+                button.innerHTML = `<div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spinner"></div>`;
+                button.disabled = true;
+                switchTab('advanced');
+                advancedAnalysisContent.innerHTML = `<div class="flex items-center justify-center h-full"><div class="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spinner"></div></div>`;
+                
+                try {
+                    const result = await callGeminiAPI(prompt);
+                    displayFn(result);
+                } catch(e) {
+                    advancedAnalysisContent.innerHTML = `<div class="text-red-400"><p><strong>Analysis Failed:</strong> ${e.message}</p></div>`;
+                } finally {
+                    button.innerHTML = originalText;
+                    if(lastCorrectCode) button.disabled = false;
+                }
+            }
+
+            complexityBtn.addEventListener('click', () => {
+                const prompt = `Analyze the Time and Space Complexity (Big O) of this ${selectedLanguage} code solving "${currentProblemDesc}":
+                \`\`\`${selectedLanguage.toLowerCase()}\n${lastCorrectCode}\n\`\`\`
+                Response MUST be ONLY raw JSON in a \`\`\`json block with keys: "timeComplexity" (string), "spaceComplexity" (string), and "explanation" (Markdown string).`;
+                handleAdvancedTool(complexityBtn, prompt, displayComplexity);
+            });
+
+            optimizeBtn.addEventListener('click', () => {
+                const prompt = `Optimize this ${selectedLanguage} code for the problem: "${currentProblemDesc}":
+                \`\`\`${selectedLanguage.toLowerCase()}\n${lastCorrectCode}\n\`\`\`
+                Response MUST be ONLY raw JSON in a \`\`\`json block with keys: 'optimizedCode' and 'explanation' (Markdown string).`;
+                handleAdvancedTool(optimizeBtn, prompt, displayOptimization);
+            });
+
+            testCasesBtn.addEventListener('click', () => {
+                const prompt = `You are a QA engineer. For the problem: "${currentProblemDesc}", generate 5-7 critical test cases, including edge cases in bold heading.
+                Response MUST be ONLY raw JSON in a \`\`\`json block with one key: "testCases", an array of objects, each with "input" and "expectedOutput" keys.`;
+                handleAdvancedTool(testCasesBtn, prompt, displayTestCases);
+            });
+
+            function displayComplexity(data) {
+                advancedAnalysisContent.innerHTML = `
+                    <h4 class="text-lg font-bold text-indigo-400 mb-2">Complexity Analysis</h4>
+                    <p><strong class="text-slate-400">Time Complexity:</strong> <code class="code-font bg-slate-700 text-amber-300 px-1.5 py-0.5 rounded">${data.timeComplexity}</code></p>
+                    <p><strong class="text-slate-400">Space Complexity:</strong> <code class="code-font bg-slate-700 text-amber-300 px-1.5 py-0.5 rounded">${data.spaceComplexity}</code></p>
+                    <div class="mt-3 pt-3 border-t border-slate-700 text-gray-300 space-y-2">${data.explanation.replace(/\n/g, '<br>')}</div>
+                `;
+            }
+
+            function displayOptimization(data) {
+                const copyButtonHTML = `<div class="flex justify-between items-center mb-2"><h4 class="text-lg font-bold text-indigo-400">Optimized Code</h4><button onclick="copyCode(this)" class="text-sm bg-slate-700 px-2 py-1 rounded-md hover:bg-slate-600">Copy Code</button></div>`;
+                advancedAnalysisContent.innerHTML = `
+                    ${copyButtonHTML}
+                    <pre class="bg-[#1E1E1E] p-3 rounded-lg overflow-x-auto compiler-scrollbar"><code class="code-font text-sm">${data.optimizedCode.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</code></pre>
+                    <div class="mt-3 pt-3 border-t border-slate-700 text-gray-300 space-y-2">${data.explanation.replace(/\n/g, '<br>')}</div>
+                `;
+            }
+
+            function displayTestCases(data) {
+                 const testCasesHTML = data.testCases.map(tc => `
+                    <div class="p-3 bg-slate-800 rounded-lg">
+                        <p class="text-slate-400 text-sm">Input:</p>
+                        <pre class="code-font text-white bg-slate-900 p-2 rounded">${tc.input}</pre>
+                        <p class="text-slate-400 text-sm mt-2">Expected Output:</p>
+                        <pre class="code-font text-white bg-slate-900 p-2 rounded">${tc.expectedOutput}</pre>
+                    </div>
+                `).join('');
+                advancedAnalysisContent.innerHTML = `
+                    <h4 class="text-lg font-bold text-indigo-400 mb-2">Generated Test Cases</h4>
+                    <div class="space-y-3">${testCasesHTML}</div>
+                `;
+            }
+
+            window.copyCode = function(button) {
+                const pre = button.parentElement.nextElementSibling;
+                const code = pre.querySelector('code').innerText;
+                const textarea = document.createElement('textarea');
+                textarea.value = code;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                const originalText = button.textContent;
+                button.textContent = 'Copied!';
+                setTimeout(() => { button.textContent = originalText; }, 2000);
+            }
+        });
+    </script>
+</body>
+</html>

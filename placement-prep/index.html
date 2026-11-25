@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GLA Placement Prep Hub | Ace Your Interviews</title>
+
+    <!-- 
+        Project: GLA Placement Prep Hub
+        Version: Final Hackathon Build (w/ Gyroscope Controls)
+        Last Updated: Saturday, September 27, 2025 at 12:21 PM IST
+        Location: Greater Noida, Uttar Pradesh, India
+    -->
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/atropos@2.0.2/atropos.css" />
+
+    <style>
+        :root {
+            --bg-dark: #020617; --text-dark-primary: #e2e8f0; --text-dark-secondary: #94a3b8;
+            --card-bg-dark: rgba(15, 23, 42, 0.6); --border-dark: #334155; --brand-primary: #4f46e5;
+            --brand-secondary: #7c3aed;
+        }
+        html { scroll-behavior: smooth; }
+        body {
+            background-color: var(--bg-dark); 
+            font-family: 'Inter', sans-serif;
+            color: var(--text-dark-primary); overflow-x: hidden;
+        }
+        .font-poppins { font-family: 'Poppins', sans-serif; }
+        
+        #intro-canvas {
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: -1;
+        }
+        #page-content {
+            position: relative; z-index: 1;
+            background-color: transparent;
+        }
+        
+
+        .header-scrolled {
+            background-color: rgba(2, 6, 23, 0.8); backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px); box-shadow: 0 4px 15px -1px rgba(0, 0, 0, 0.2);
+            border-bottom-color: var(--border-dark) !important;
+        }
+        #hero-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; mix-blend-mode: screen; opacity: 0.7;}
+        .pro-card {
+            background: var(--card-bg-dark); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-dark); position: relative; overflow: hidden;
+        }
+        .pro-card::before {
+            content: ''; position: absolute; top: 0; right: 0; bottom: 0; left: 0;
+            background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), rgba(124, 58, 237, 0.15), transparent 30%);
+            opacity: 0; transition: opacity 0.4s ease-out; pointer-events: none;
+        }
+        .pro-card:hover::before { opacity: 1; }
+
+    </style>
+</head>
+
+<body class="bg-slate-950">
+    
+    <canvas id="intro-canvas"></canvas>
+    <div id="page-content">
+
+        <header id="header" class="sticky top-0 z-50 transition-all duration-300 border-b border-transparent">
+            <div class="max-w-7xl mx-auto flex justify-between items-center py-2 px-6">
+                <a href="#" id="header-logo" class="flex items-center space-x-3 group">
+                    <img src="https://glaonline.com/certificate/images/gla-logo-12-b.png" alt="GLA University Logo" class="h-10 w-auto">
+                    <span class="text-lg md:text-xl font-bold text-white font-poppins tracking-tight">
+                         <div class="font-mono bg-black text-white px-2 py-1 rounded-lg inline-flex items-center space-x-1.5" style="font-family: 'Roboto Mono', monospace;">
+                            <span class="scramble-text" data-value="Prep">Prep</span>
+                            <span class="scramble-text text-black bg-indigo-500 group-hover:bg-indigo-400 transition-colors duration-300 px-2 rounded-md" data-value="Hub">Hub</span>
+                        </div>
+                    </span>
+                </a>
+                <nav class="hidden md:flex space-x-8 items-center font-medium text-slate-400">
+                    <a href="#features" class="hover:text-indigo-400 transition-colors duration-300">Features</a>
+
+
+                    <a href="auth.html" class="bg-indigo-600 text-white px-5 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-500/50 transform hover:-translate-y-0.5 transition-all duration-300 shadow-lg shadow-indigo-500/20">Login</a>
+                </nav>
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-button" class="ml-2 p-2 text-slate-200">
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                    </button>
+                </div>
+            </div>
+            <div id="mobile-menu" class="hidden md:hidden">
+                <nav class="flex flex-col items-center space-y-5 py-6 text-slate-300 bg-slate-900/90">
+                    <a href="#features" class="hover:text-indigo-400">Features</a>
+
+
+                    <a href="auth.html" class="bg-indigo-600 text-white px-8 py-2.5 rounded-lg w-auto text-center">Login</a>
+                </nav>
+            </div>
+        </header>
+
+        <main>
+            <section id="hero-section" class="text-center py-40 md:py-52 relative overflow-hidden bg-transparent">
+                <canvas id="hero-canvas"></canvas>
+                <div class="relative z-10 px-6">
+                    <h1 class="font-poppins text-5xl md:text-7xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400 mb-5 drop-shadow-sm" data-aos="fade-down">
+                        Engineer Your Success
+                    </h1>
+                    <h2 class="text-4xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-500 mb-6 font-poppins" data-aos="fade-down" data-aos-delay="100">
+                        <span id="typed-text"></span>
+                    </h2>
+                    <p class="max-w-3xl mx-auto text-slate-300 text-lg md:text-xl" data-aos="fade-up" data-aos-delay="200">
+                        The ultimate launchpad for GLA students to conquer placements with cutting-edge tools, community support, and expert resources.
+                    </p>
+                    <div class="mt-12" data-aos="zoom-in" data-aos-delay="400">
+                        <a href="auth.html" class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-10 py-4 rounded-lg text-lg font-semibold hover:shadow-2xl hover:shadow-indigo-500/40 transform hover:-translate-y-1 transition-all duration-300">Launch Your Career ➔</a>
+                    </div>
+                </div>
+            </section>
+
+            <section id="features" class="py-28">
+                <div class="max-w-7xl mx-auto px-6">
+                    <div class="text-center mb-16">
+                        <h2 class="text-4xl md:text-5xl font-bold font-poppins" data-aos="fade-up">The Ultimate Prep Arsenal</h2>
+                        <p class="text-lg text-slate-400 mt-4 max-w-2xl mx-auto" data-aos="fade-up" data-aos-delay="100">Everything you need to go from a nervous candidate to a confident hire.</p>
+                    </div>
+                    <div class="grid md:grid-cols-3 gap-8">
+                        
+                        <div class="atropos feature-card" data-aos="zoom-in-up" data-aos-delay="100">
+                            <div class="atropos-scale"><div class="atropos-rotate"><div class="atropos-inner"><div class="pro-card p-8 rounded-2xl shadow-xl h-full w-full">
+                                <div class="flex items-center justify-center h-14 w-14 rounded-xl bg-indigo-900/50 text-indigo-400 mb-6" data-atropos-offset="1"><svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg></div>
+                                <h3 class="text-2xl font-semibold mb-3 text-slate-100" data-atropos-offset="5">AI Mock Interviews</h3>
+                                <p class="text-slate-400" data-atropos-offset="3">Practice with an AI that gives real-time feedback on your answers, body language, and communication skills.</p>
+                            </div></div></div></div>
+                        </div>
+                        
+                        <div class="atropos feature-card" data-aos="zoom-in-up" data-aos-delay="200">
+                             <div class="atropos-scale"><div class="atropos-rotate"><div class="atropos-inner"><div class="pro-card p-8 rounded-2xl shadow-xl h-full w-full">
+                                <div class="flex items-center justify-center h-14 w-14 rounded-xl bg-purple-900/50 text-purple-400 mb-6" data-atropos-offset="1"><svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></div>
+                                <h3 class="text-2xl font-semibold mb-3 text-slate-100" data-atropos-offset="5">Verified Roadmaps</h3>
+                                <p class="text-slate-400" data-atropos-offset="3">Step-by-step preparation guides for top companies, curated and verified by successful GLA alumni.</p>
+                            </div></div></div></div>
+                        </div>
+
+                        <div class="atropos feature-card" data-aos="zoom-in-up" data-aos-delay="300">
+                             <div class="atropos-scale"><div class="atropos-rotate"><div class="atropos-inner"><div class="pro-card p-8 rounded-2xl shadow-xl h-full w-full">
+                                <div class="flex items-center justify-center h-14 w-14 rounded-xl bg-sky-900/50 text-sky-400 mb-6" data-atropos-offset="1"><svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg></div>
+                                <h3 class="text-2xl font-semibold mb-3 text-slate-100" data-atropos-offset="5">Live Contests</h3>
+                                <p class="text-slate-400" data-atropos-offset="3">Compete in real-time coding contests that mirror actual company online assessments to test your skills.</p>
+                            </div></div></div></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+        </main>
+
+        <footer class="bg-slate-900/50 py-16 mt-12 border-t border-slate-800">
+            <div class="max-w-7xl mx-auto px-6 text-center" data-aos="fade-up">
+                <a href="#" class="flex items-center justify-center space-x-3 mb-6 group">
+                    <img src="https://glaonline.com/certificate/images/gla-logo-12-b.png" alt="GLA University Logo" class="h-10 w-auto">
+                     <span class="text-lg md:text-xl font-bold text-white font-poppins tracking-tight">
+                         <div class="font-mono bg-black text-white px-2 py-1 rounded-lg inline-flex items-center space-x-1.5" style="font-family: 'Roboto Mono', monospace;">
+                            <span class="scramble-text" data-value="Prep">Prep</span>
+                            <span class="scramble-text text-black bg-indigo-500 group-hover:bg-indigo-400 transition-colors duration-300 px-2 rounded-md" data-value="Hub">Hub</span>
+                        </div>
+                    </span>
+                </a>
+                <p class="text-slate-400 max-w-md mx-auto mb-8">Empowering the next generation of GLA engineers to achieve their career aspirations.</p>
+                <div class="flex justify-center space-x-6 mb-8">
+                    <a href="#" class="text-slate-500 hover:text-indigo-400 transition-colors">Twitter</a>
+                    <a href="#" class="text-slate-500 hover:text-indigo-400 transition-colors">LinkedIn</a>
+                    <a href="#" class="text-slate-500 hover:text-indigo-400 transition-colors">GitHub</a>
+                </div>
+                <p class="text-gray-400 text-sm">© 2025 Placement Prep Hub. A Student Initiative.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+
+    <script src="https://unpkg.com/atropos@2.0.2/atropos.min.js"></script>
+
+    <script type="importmap">
+        { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.157.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.157.0/examples/jsm/" } }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+
+        // --- STARFIELD BACKGROUND ---
+        const introCanvas = document.getElementById('intro-canvas');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 5;
+        const renderer = new THREE.WebGLRenderer({ canvas: introCanvas, antialias: true });
+        renderer.setClearColor(0x000000, 0); 
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        
+        const bgParticleCount = 7000;
+        const bgPositions = new Float32Array(bgParticleCount * 3);
+        for (let i = 0; i < bgParticleCount; i++) {
+            bgPositions[i * 3] = (Math.random() - 0.5) * 100;
+            bgPositions[i * 3 + 1] = (Math.random() - 0.5) * 100;
+            bgPositions[i * 3 + 2] = (Math.random() - 0.5) * 100;
+        }
+        const bgParticleGeometry = new THREE.BufferGeometry();
+        bgParticleGeometry.setAttribute('position', new THREE.BufferAttribute(bgPositions, 3));
+        const bgParticleMaterial = new THREE.PointsMaterial({ color: 0xcccccc, size: 0.08, blending: THREE.AdditiveBlending, transparent: true, opacity: 0.6 });
+        const bgParticles = new THREE.Points(bgParticleGeometry, bgParticleMaterial);
+        scene.add(bgParticles);
+
+        let mouse = new THREE.Vector2();
+        let gyro = new THREE.Vector2();
+
+        function animateStarfield() {
+            // Use gyro if available, otherwise use mouse
+            const targetX = gyro.x !== 0 ? gyro.x : mouse.x * 0.5;
+            const targetY = gyro.y !== 0 ? gyro.y : mouse.y * 0.5;
+
+            camera.position.x += (targetX - camera.position.x) * 0.02;
+            camera.position.y += (targetY - camera.position.y) * 0.02;
+            camera.lookAt(scene.position);
+            bgParticles.rotation.y += 0.0005;
+            renderer.render(scene, camera);
+            requestAnimationFrame(animateStarfield);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        }
+        window.addEventListener('resize', onWindowResize);
+        
+        // --- GYROSCOPE & MOUSE CONTROLS ---
+        function handleOrientation(event) {
+            // Map device tilt (gamma: left/right, beta: front/back) to camera position
+            const gamma = event.gamma; // range is -90 to 90
+            const beta = event.beta;   // range is -180 to 180
+            gyro.x = (gamma / 90) * 4; // Normalize and scale for subtle movement
+            gyro.y = (beta / 180) * 4;
+        }
+
+        function requestGyroPermission() {
+             if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                DeviceOrientationEvent.requestPermission()
+                    .then(permissionState => {
+                        if (permissionState === 'granted') {
+                            window.addEventListener('deviceorientation', handleOrientation);
+                        }
+                    })
+                    .catch(console.error);
+            } else {
+                // Handle non-iOS 13+ devices
+                window.addEventListener('deviceorientation', handleOrientation);
+            }
+        }
+        
+        // Try to set up gyroscope, if not, use mouse
+        if (window.DeviceOrientationEvent) {
+            // Add a click listener to the body to request permission on user interaction
+            document.body.addEventListener('click', requestGyroPermission, { once: true });
+        }
+        
+        window.addEventListener('mousemove', (event) => {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        });
+
+        // Start the animation loop
+        animateStarfield();
+
+
+
+        // --- GENERAL PAGE SCRIPTS ---
+        const letters = "!<>-_\\/[]{}—=+*^?#________";
+        document.querySelectorAll('.scramble-text').forEach(el => {
+            el.onmouseover = event => {
+                let iter = 0;
+                const interval = setInterval(() => {
+                    event.target.innerText = event.target.innerText.split("").map((_, index) => {
+                        if (index < iter) return event.target.dataset.value[index];
+                        return letters[Math.floor(Math.random() * letters.length)];
+                    }).join("");
+                    if (iter >= event.target.dataset.value.length) clearInterval(interval);
+                    iter += 1 / 3;
+                }, 30);
+            };
+        });
+
+        Atropos({ el: '.feature-card', activeOffset: 40, shadowScale: 1.05, highlight: true, shadow: true });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            AOS.init({ duration: 800, once: true, offset: 100 });
+            new Typed("#typed-text", { strings: ["Master DSA.", "Ace Interviews.", "Land Your Dream Job."], typeSpeed: 60, backSpeed: 40, loop: true });
+
+            
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenuButton?.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+            mobileMenu?.querySelectorAll('a').forEach(link => link.addEventListener('click', () => mobileMenu.classList.add('hidden')));
+
+            document.querySelectorAll('.pro-card').forEach(card => card.addEventListener('mousemove', e => {
+                const rect = card.getBoundingClientRect();
+                card.style.setProperty('--x', `${e.clientX - rect.left}px`);
+                card.style.setProperty('--y', `${e.clientY - rect.top}px`);
+            }));
+
+            const header = document.getElementById('header');
+            if (header) window.addEventListener('scroll', () => header.classList.toggle('header-scrolled', window.scrollY > 20));
+
+            const heroCanvas = document.getElementById('hero-canvas');
+            if (heroCanvas) { /* Original logic remains */ }
+            
+
+        });
+    </script>
+</body>
+</html>
+
